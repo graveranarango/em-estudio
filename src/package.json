@@ -1,0 +1,48 @@
+{
+  "name": "ai-content-studio",
+  "version": "0.1.0",
+  "private": true,
+  "scripts": {
+    "dev": "next dev",
+    "build": "next build",
+    "start": "next start",
+    "lint": "next lint",
+    "test": "vitest",
+    "test:watch": "vitest --watch",
+    "test:e2e": "playwright test",
+    "test:e2e:ui": "playwright test --ui",
+    "test:a11y": "tsx scripts/a11y-scan.ts",
+    "test:a11y:mobile": "tsx scripts/a11y-scan.ts --config mobile",
+    "test:a11y:all": "tsx scripts/a11y-scan.ts --config all",
+    "typecheck": "tsc --noEmit"
+  },
+  "dependencies": {
+    "react": "^18.0.0",
+    "react-dom": "^18.0.0",
+    "next": "^14.0.0",
+    "typescript": "^5.0.0",
+    "@types/react": "^18.0.0",
+    "@types/react-dom": "^18.0.0",
+    "tailwindcss": "^4.0.0",
+    "lucide-react": "latest",
+    "zustand": "latest",
+    "immer": "latest",
+    "motion": "latest",
+    "@radix-ui/react-dialog": "latest",
+    "@radix-ui/react-slot": "latest",
+    "@radix-ui/react-avatar": "latest",
+    "class-variance-authority": "latest",
+    "clsx": "latest",
+    "tailwind-merge": "latest"
+  },
+  "devDependencies": {
+    "@playwright/test": "^1.40.0",
+    "@axe-core/playwright": "^4.8.0",
+    "vitest": "^1.0.0",
+    "@vitejs/plugin-react": "^4.0.0",
+    "tsx": "^4.0.0",
+    "jest-axe": "^8.0.0",
+    "@testing-library/react": "^14.0.0",
+    "@testing-library/jest-dom": "^6.0.0"
+  }
+}
