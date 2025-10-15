@@ -7,7 +7,6 @@ import { initializeApp } from "firebase/app";
 const firebaseConfig = {
   apiKey: "AIzaSyBQb8sz5oZVmmk9tOf49CbtAzaHLxwzIJw",
   authDomain: "em-estudio.firebaseapp.com",
-  databaseURL: "https://em-estudio-default-rtdb.firebaseio.com",
   projectId: "em-estudio",
   storageBucket: "em-estudio.firebasestorage.app",
   messagingSenderId: "642931774003",
