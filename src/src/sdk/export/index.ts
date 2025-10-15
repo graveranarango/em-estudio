@@ -1,5 +1,5 @@
 // Export/Share SDK for Chat Maestro Frontend
-import { projectId, publicAnonKey } from '@/utils/supabase/info';
+import { projectId, publicAnonKey } from '../../utils/supabase/info';
 
 export interface ExportRequest {
   threadId: string;

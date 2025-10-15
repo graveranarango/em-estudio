@@ -1,4 +1,4 @@
-import { projectId, publicAnonKey } from '@/utils/supabase/info';
+import { projectId, publicAnonKey } from '../../utils/supabase/info';
 import type { GuardInput, GuardCheckResponse, BrandKit } from './types';
 
 export class BrandGuardSDK {
