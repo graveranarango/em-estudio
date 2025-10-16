@@ -30,6 +30,7 @@ import {
 } from 'lucide-react';
 
 import { useChat } from '../../hooks/useChat';
+import { useChatStore } from '../../state/chatStore';
 import { useBrandGuard } from '../../hooks/useBrandGuard';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '../ui/dialog';
 import { RadioGroup, RadioGroupItem } from '../ui/radio-group';
@@ -43,7 +44,7 @@ import { BrandGuardChip } from '../chat/BrandGuardChip';
 import { BrandGuardPanel } from '../chat/BrandGuardPanel';
 
 // For demo purposes, we'll work in offline mode without real backend
-const DEMO_MODE = true; // Set to false when real auth is available
+const DEMO_MODE = false; // Set to false when real auth is available
 
 export function ChatModuleUpdated() {
   // Chat hook with all functionality - undefined JWT for demo mode
@@ -61,6 +62,7 @@ export function ChatModuleUpdated() {
   const [shareMode, setShareMode] = useState('readonly');
   const [showBrandGuardPanel, setShowBrandGuardPanel] = useState(false);
   
+  const isLoading = useChatStore((state) => state.isLoading);
   // Memoized computed values to prevent re-renders
   const isStreaming = chat.isStreaming;
   const canSendMessage = chat.composerText.trim().length > 0 && !isStreaming;
@@ -128,6 +130,17 @@ export function ChatModuleUpdated() {
       return () => clearTimeout(timeoutId);
     }
   }, [chat.composerText, brandGuard, chat.settings.brandGuard]);
+
+  if (isLoading) {
+    return (
+      <div className="h-full flex items-center justify-center">
+        <div className="text-center space-y-4">
+          <div className="w-8 h-8 mx-auto border-4 border-pink-500 border-t-transparent rounded-full animate-spin"></div>
+          <p className="text-muted-foreground">Cargando conversaciones...</p>
+        </div>
+      </div>
+    );
+  }
 
   // Handle slash commands
   const handleSlashCommand = (command: string) => {
