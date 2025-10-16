@@ -10,22 +10,12 @@ export const AuthProvider = ({ children }) => {
   const [error, setError] = useState<Error | null>(null);
 
   useEffect(() => {
-    const allowedEmail = import.meta.env.VITE_ADMIN_EMAIL as string | undefined;
     const unsubscribe = onAuthStateChanged(
       auth,
       (fbUser) => {
-        // If an admin email is configured, restrict access to that email only.
-        if (fbUser) {
-          if (allowedEmail && fbUser.email !== allowedEmail) {
-            setUser(null);
-            setError(new Error('Este usuario no está autorizado. Verifica VITE_ADMIN_EMAIL.'));
-          } else {
-            setUser(fbUser);
-            setError(null);
-          }
-        } else {
-          setUser(null);
-        }
+        // Permitir cualquier usuario autenticado de Firebase
+        setUser(fbUser || null);
+        setError(null);
         setIsLoading(false);
       },
       (err) => {
@@ -43,13 +33,7 @@ export const AuthProvider = ({ children }) => {
     try {
       const persistence = remember ? browserLocalPersistence : browserSessionPersistence;
       await setPersistence(auth, persistence);
-      const cred = await signInWithEmailAndPassword(auth, email, password);
-      const allowedEmail = import.meta.env.VITE_ADMIN_EMAIL as string | undefined;
-      if (allowedEmail && cred.user?.email !== allowedEmail) {
-        // Sign out immediately if not authorized to avoid a flicker
-        await firebaseSignOut(auth);
-        throw new Error('Usuario no autorizado para acceder.');
-      }
+      await signInWithEmailAndPassword(auth, email, password);
     } catch (err) {
       setError(err as Error);
     } finally {
