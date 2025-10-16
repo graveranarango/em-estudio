@@ -1,4 +1,4 @@
-import { projectId, publicAnonKey } from './supabase/info';
+import { FUNCTIONS_TOKEN, functionsUrl } from './backend';
 import type { ChatRequest, SSEEvent, AbortRequest, RegenerateRequest } from '../types/chat';
 
 export class ChatService {
@@ -6,10 +6,10 @@ export class ChatService {
   private headers: HeadersInit;
 
   constructor(accessToken?: string) {
-    this.baseUrl = `https://${projectId}.supabase.co/functions/v1/make-server-ecf7df64/api/chat`;
+    this.baseUrl = functionsUrl('/api/chat');
     this.headers = {
       'Content-Type': 'application/json',
-      'Authorization': `Bearer ${accessToken || publicAnonKey}`
+      'Authorization': `Bearer ${accessToken || FUNCTIONS_TOKEN}`
     };
   }
 

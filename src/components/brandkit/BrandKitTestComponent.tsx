@@ -68,10 +68,10 @@ export default function BrandKitTestComponent() {
 
   const testConnection = async () => {
     try {
-      const { projectId, publicAnonKey } = await import('../../utils/supabase/info');
-      const response = await fetch(`https://${projectId}.supabase.co/functions/v1/make-server-ecf7df64/health`, {
+      const { functionsUrl, FUNCTIONS_TOKEN } = await import('../../utils/backend');
+      const response = await fetch(functionsUrl('/health'), {
         headers: {
-          'Authorization': `Bearer ${publicAnonKey}`
+          'Authorization': `Bearer ${FUNCTIONS_TOKEN}`
         }
       });
       
@@ -91,10 +91,10 @@ export default function BrandKitTestComponent() {
 
   const testAIModels = async () => {
     try {
-      const { projectId, publicAnonKey } = await import('../../utils/supabase/info');
-      const response = await fetch(`https://${projectId}.supabase.co/functions/v1/make-server-ecf7df64/ai-models`, {
+      const { functionsUrl, FUNCTIONS_TOKEN } = await import('../../utils/backend');
+      const response = await fetch(functionsUrl('/ai-models'), {
         headers: {
-          'Authorization': `Bearer ${publicAnonKey}`
+          'Authorization': `Bearer ${FUNCTIONS_TOKEN}`
         }
       });
       
@@ -126,15 +126,15 @@ export default function BrandKitTestComponent() {
 
   const testGeminiReal = async () => {
     try {
-      const { projectId, publicAnonKey } = await import('../../utils/supabase/info');
+      const { functionsUrl, FUNCTIONS_TOKEN } = await import('../../utils/backend');
       
       // Show loading state
       alert('🔄 Probando conectividad real con Gemini...');
       
-      const response = await fetch(`https://${projectId}.supabase.co/functions/v1/make-server-ecf7df64/test-gemini`, {
+      const response = await fetch(functionsUrl('/test-gemini'), {
         method: 'POST',
         headers: {
-          'Authorization': `Bearer ${publicAnonKey}`,
+          'Authorization': `Bearer ${FUNCTIONS_TOKEN}`,
           'Content-Type': 'application/json'
         }
       });
@@ -163,13 +163,13 @@ export default function BrandKitTestComponent() {
 
   const listGeminiModels = async () => {
     try {
-      const { projectId, publicAnonKey } = await import('../../utils/supabase/info');
+      const { functionsUrl, FUNCTIONS_TOKEN } = await import('../../utils/backend');
       
       alert('🔄 Listando modelos disponibles...');
       
-      const response = await fetch(`https://${projectId}.supabase.co/functions/v1/make-server-ecf7df64/list-models`, {
+      const response = await fetch(functionsUrl('/list-models'), {
         headers: {
-          'Authorization': `Bearer ${publicAnonKey}`
+          'Authorization': `Bearer ${FUNCTIONS_TOKEN}`
         }
       });
       
