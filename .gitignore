@@ -4,3 +4,19 @@ dist/
 .DS_Store
 .vscode/
 .idea/
+# Env files
+.env
+.env.*
+.env.local
+.env.*.local
+# Firebase local state
+.firebase/
+firebase-debug.log
+firebase-debug.*.log
+# Local credentials
+credencial/
+em-estudio-firebase-adminsdk-*.json
+OPENAI_API_KEY=*.txt
+# Misc local tokens/secrets
+token.js.txt
+
