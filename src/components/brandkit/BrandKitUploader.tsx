@@ -64,7 +64,7 @@ export function BrandKitUploader({ onUploadComplete }: BrandKitUploaderProps) {
       
       setProgress(30);
       
-      // Llamar al backend para análisis con Gemini (Firebase Functions / genérico)
+      // Llamar al backend para análisis con Gemini
       const { functionsUrl, FUNCTIONS_TOKEN } = await import('../../utils/backend');
       const response = await fetch(functionsUrl('/analyze-brand-manual'), {
         method: 'POST',

@@ -1,5 +1,29 @@
-// Export/Share SDK for Chat Maestro Frontend
+// Export/Share SDK for Chat Maestro Frontend (Firebase version)
+import { initializeApp } from "firebase/app";
+import { getAuth } from "firebase/auth";
+import { getFirestore } from "firebase/firestore";
+import { FUNCTIONS_BASE_URL, FUNCTIONS_TOKEN } from "../../utils/backend";
 
+/**
+ * Firebase initialization
+ */
+const firebaseConfig = {
+  apiKey: "AIzaSyBQb8sz5oZVmmk9tOf49CbtAzaHLxwzIJw",
+  authDomain: "em-estudio.firebaseapp.com",
+  databaseURL: "https://em-estudio-default-rtdb.firebaseio.com",
+  projectId: "em-estudio",
+  storageBucket: "em-estudio.firebasestorage.app",
+  messagingSenderId: "642931774003",
+  appId: "1:642931774003:web:b1970320faf53bd7874946"
+};
+
+const app = initializeApp(firebaseConfig);
+export const auth = getAuth(app);
+export const db = getFirestore(app);
+
+/**
+ * Export SDK Types
+ */
 export interface ExportRequest {
   threadId: string;
   messageId?: string;
@@ -53,109 +77,110 @@ export interface ShareGetResult {
 }
 
 /**
- * Export SDK for handling conversation exports
+ * Export SDK for handling conversation exports (Firebase Cloud Functions)
  */
 export class ExportSDK {
   private baseUrl: string;
   private authToken?: string;
 
   constructor(authToken?: string) {
-    this.baseUrl = ``; // Removed Supabase URL
+    // Se reemplaza el dominio de Supabase por la función de Firebase Hosting
+    this.baseUrl = FUNCTIONS_BASE_URL;
     this.authToken = authToken;
   }
 
-  /**
-   * Sets authentication token
-   */
   setAuthToken(token: string) {
     this.authToken = token;
   }
 
-  /**
-   * Exports conversation to Markdown
-   */
   async exportToMarkdown(request: ExportRequest): Promise<ExportResult> {
     return this.export({ ...request, format: 'md' });
   }
 
-  /**
-   * Exports conversation to HTML
-   */
   async exportToHTML(request: ExportRequest): Promise<ExportResult> {
     return this.export({ ...request, format: 'html' });
   }
 
-  /**
-   * Exports conversation to PDF
-   */
   async exportToPDF(request: ExportRequest): Promise<ExportResult> {
     return this.export({ ...request, format: 'pdf' });
   }
 
-  /**
-   * Generic export method
-   */
   private async export(request: ExportRequest): Promise<ExportResult> {
-    console.log('[Export SDK] export called with:', request);
-    // Return mock data
-    return {
-      filename: `export.${request.format}`,
-      content: `# Mock Export\n\nThis is a mock export in ${request.format} format.`
-    };
-  }
-
-  /**
-   * Creates a shareable link for a conversation
-   */
-  async createShareLink(request: ShareCreateRequest): Promise<ShareCreateResult> {
-    console.log('[Export SDK] createShareLink called with:', request);
-    // Return mock data
-    return {
-      link: 'https://example.com/share/mock-link',
-      token: 'mock-token',
-      expires_at: null
-    };
-  }
-
-  /**
-   * Revokes a shareable link
-   */
-  async revokeShareLink(linkId: string): Promise<{ ok: boolean }> {
-    console.log('[Export SDK] revokeShareLink called with:', linkId);
-    // Return mock data
-    return { ok: true };
-  }
-
-  /**
-   * Gets shared content by token (public access, no auth required)
-   */
-  async getSharedContent(token: string): Promise<ShareGetResult> {
-    console.log('[Export SDK] getSharedContent called with:', token);
-    // Return mock data
-    return {
-      thread: {
-        title: 'Mock Thread',
-        system: 'Mock System'
+    const response = await fetch(`${this.baseUrl.replace(/\/$/, "")}/api/export/${request.format}`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${this.authToken || "firebase-public"}`,
       },
-      messages: [],
-      readOnly: true
-    };
+      body: JSON.stringify({ req: request }),
+    });
+
+    if (!response.ok) {
+      const error = await response.json().catch(() => ({ error: 'Export failed' }));
+      throw new Error(error.error || `Export failed with status ${response.status}`);
+    }
+
+    return response.json();
   }
 
-  /**
-   * Downloads exported content
-   */
+  async createShareLink(request: ShareCreateRequest): Promise<ShareCreateResult> {
+    const response = await fetch(`${this.baseUrl.replace(/\/$/, "")}/api/share/create`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${this.authToken || "firebase-public"}`,
+      },
+      body: JSON.stringify({ req: request }),
+    });
+
+    if (!response.ok) {
+      const error = await response.json().catch(() => ({ error: 'Share creation failed' }));
+      throw new Error(error.error || `Share creation failed with status ${response.status}`);
+    }
+
+    return response.json();
+  }
+
+  async revokeShareLink(linkId: string): Promise<{ ok: boolean }> {
+    const response = await fetch(`${this.baseUrl.replace(/\/$/, "")}/api/share/revoke`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${this.authToken || "firebase-public"}`,
+      },
+      body: JSON.stringify({ id: linkId }),
+    });
+
+    if (!response.ok) {
+      const error = await response.json().catch(() => ({ error: 'Revoke failed' }));
+      throw new Error(error.error || `Revoke failed with status ${response.status}`);
+    }
+
+    return response.json();
+  }
+
+  async getSharedContent(token: string): Promise<ShareGetResult> {
+    const response = await fetch(`${this.baseUrl.replace(/\/$/, "")}/api/share/get?token=${token}`, {
+      method: 'GET',
+      headers: { 'Content-Type': 'application/json' },
+    });
+
+    if (!response.ok) {
+      const error = await response.json().catch(() => ({ error: 'Failed to load shared content' }));
+      throw new Error(error.error || `Failed to load shared content with status ${response.status}`);
+    }
+
+    return response.json();
+  }
+
   async downloadExport(result: ExportResult): Promise<void> {
     if (result.url) {
-      // For PDF exports, open the signed URL
       window.open(result.url, '_blank');
     } else if (result.content) {
-      // For text-based exports, trigger download
       const blob = new Blob([result.content], { 
         type: result.filename.endsWith('.html') ? 'text/html' : 'text/markdown' 
       });
       const url = URL.createObjectURL(blob);
-      
       const a = document.createElement('a');
       a.href = url;
       a.download = result.filename;
@@ -166,14 +191,10 @@ export class ExportSDK {
     }
   }
 
-  /**
-   * Copies content to clipboard
-   */
   async copyToClipboard(content: string): Promise<void> {
     if (navigator.clipboard) {
       await navigator.clipboard.writeText(content);
     } else {
-      // Fallback for older browsers
       const textArea = document.createElement('textarea');
       textArea.value = content;
       document.body.appendChild(textArea);
@@ -183,9 +204,6 @@ export class ExportSDK {
     }
   }
 
-  /**
-   * Copies share link to clipboard
-   */
   async copyShareLink(shareResult: ShareCreateResult): Promise<void> {
     await this.copyToClipboard(shareResult.link);
   }

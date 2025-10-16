@@ -7,13 +7,13 @@ import {
   DialogFooter,
   DialogHeader,
   DialogTitle,
-} from '../ui/dialog';
-import { Button } from '../ui/button';
-import { Label } from '../ui/label';
-import { RadioGroup, RadioGroupItem } from '../ui/radio-group';
-import { Checkbox } from '../ui/checkbox';
-import { Input } from '../ui/input';
-import { Badge } from '../ui/badge';
+} from '@/components/ui/dialog';
+import { Button } from '@/components/ui/button';
+import { Label } from '@/components/ui/label';
+import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
+import { Checkbox } from '@/components/ui/checkbox';
+import { Input } from '@/components/ui/input';
+import { Badge } from '@/components/ui/badge';
 import { 
   Share2, 
   Copy, 
@@ -27,8 +27,8 @@ import {
   ExternalLink
 } from 'lucide-react';
 import { useExportShare } from '../../hooks/useExportShare';
-import { ShareCreateRequest } from '../../src/sdk/export';
-import { Separator } from '../ui/separator';
+import { ShareCreateRequest } from '@/sdk/export';
+import { Separator } from '@/components/ui/separator';
 
 interface ShareDialogProps {
   open: boolean;

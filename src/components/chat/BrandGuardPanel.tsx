@@ -1,10 +1,10 @@
 import { AlertTriangle, CheckCircle, Info, X, Zap } from 'lucide-react';
-import { Badge } from '../ui/badge';
-import { Button } from '../ui/button';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '../ui/card';
-import { ScrollArea } from '../ui/scroll-area';
-import { Separator } from '../ui/separator';
-import type { GuardReport, GuardFinding } from '../../src/sdk/guard/types';
+import { Badge } from '@/components/ui/badge';
+import { Button } from '@/components/ui/button';
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import { ScrollArea } from '@/components/ui/scroll-area';
+import { Separator } from '@/components/ui/separator';
+import type { GuardReport, GuardFinding } from '@/sdk/guard/types';
 
 interface BrandGuardPanelProps {
   report: GuardReport | null;

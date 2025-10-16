@@ -1,4 +1,4 @@
-import { Badge } from '../ui/badge';
+import { Badge } from '@/components/ui/badge';
 import { Bot, User } from 'lucide-react';
 
 interface ChatBubbleProps {

@@ -1,5 +1,5 @@
 import React, { createContext, useContext, useState, ReactNode } from 'react';
-import { PodcastProject, PodcastBriefing, PodcastRecording, PodcastTranscription, PodcastHighlight, PodcastClip, PodcastContentType, TranscriptSegment } from '../types/podcasts';
+import { PodcastProject, PodcastBriefing, PodcastRecording, PodcastTranscription, PodcastHighlight, PodcastClip, PodcastContentType, TranscriptSegment } from '@/types/podcasts';
 
 interface PodcastProjectContextType {
   currentProject: PodcastProject | null;

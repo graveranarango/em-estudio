@@ -1,4 +1,5 @@
 // Threads SDK implementation
+import { functionsUrl } from '../../utils/backend';
 
 import { 
   ThreadSummary, 
@@ -11,11 +12,11 @@ import {
   BranchFromMessageResponse
 } from './contracts';
 
-const API_BASE = '/make-server-ecf7df64/api';
+const API_BASE = '';
 
 class ThreadsSDK {
   async listThreads(): Promise<ThreadSummary[]> {
-    const response = await fetch(`${API_BASE}/threads/list`);
+    const response = await fetch(functionsUrl('/api/threads/list'));
     if (!response.ok) {
       throw new Error('Failed to list threads');
     }
@@ -24,7 +25,7 @@ class ThreadsSDK {
   }
 
   async createThread(request: CreateThreadRequest): Promise<CreateThreadResponse> {
-    const response = await fetch(`${API_BASE}/thread/create`, {
+    const response = await fetch(functionsUrl('/api/thread/create'), {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify(request)
@@ -38,7 +39,7 @@ class ThreadsSDK {
   }
 
   async renameThread(threadId: string, title: string): Promise<void> {
-    const response = await fetch(`${API_BASE}/thread/rename`, {
+    const response = await fetch(functionsUrl('/api/thread/rename'), {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ threadId, title })
@@ -50,7 +51,7 @@ class ThreadsSDK {
   }
 
   async deleteThread(threadId: string): Promise<void> {
-    const response = await fetch(`${API_BASE}/thread/delete`, {
+    const response = await fetch(functionsUrl('/api/thread/delete'), {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ threadId })
@@ -62,7 +63,7 @@ class ThreadsSDK {
   }
 
   async createBranch(threadId: string, name: string): Promise<CreateBranchResponse> {
-    const response = await fetch(`${API_BASE}/branch/create`, {
+    const response = await fetch(functionsUrl('/api/branch/create'), {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ threadId, name })
@@ -76,7 +77,7 @@ class ThreadsSDK {
   }
 
   async renameBranch(branchId: string, name: string): Promise<void> {
-    const response = await fetch(`${API_BASE}/branch/rename`, {
+    const response = await fetch(functionsUrl('/api/branch/rename'), {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ branchId, name })
@@ -88,7 +89,7 @@ class ThreadsSDK {
   }
 
   async deleteBranch(branchId: string): Promise<void> {
-    const response = await fetch(`${API_BASE}/branch/delete`, {
+    const response = await fetch(functionsUrl('/api/branch/delete'), {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ branchId })
@@ -100,7 +101,7 @@ class ThreadsSDK {
   }
 
   async switchBranch(threadId: string, branchId: string): Promise<void> {
-    const response = await fetch(`${API_BASE}/branch/switch`, {
+    const response = await fetch(functionsUrl('/api/branch/switch'), {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ threadId, branchId })
@@ -116,7 +117,7 @@ class ThreadsSDK {
     messageId: string, 
     name?: string
   ): Promise<BranchFromMessageResponse> {
-    const response = await fetch(`${API_BASE}/message/branch-from`, {
+    const response = await fetch(functionsUrl('/api/message/branch-from'), {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ threadId, messageId, name })

@@ -5,7 +5,7 @@ import {
   announceToScreenReader, 
   useAccessibilityAnnouncer,
   ChatAnnouncements 
-} from '../../src/components/chat/AccessibilityAnnouncer';
+} from '../../components/chat/AccessibilityAnnouncer';
 
 function TestComponent() {
   const { announce, announcePolite, announceUrgent } = useAccessibilityAnnouncer();

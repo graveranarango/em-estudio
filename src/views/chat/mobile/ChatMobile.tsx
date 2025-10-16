@@ -2,16 +2,17 @@ import React, { useEffect, useRef, useState, useCallback } from 'react';
 import { useChatStore } from '../../../state/chatStore';
 import { VirtualizedTimeline } from '../../../components/chat/VirtualizedTimeline';
 import { AccessibilityAnnouncer, ChatAnnouncements, useAccessibilityAnnouncer } from '../../../components/chat/AccessibilityAnnouncer';
-import { BranchToolbar } from '../../../../components/chat/BranchToolbar';
-import { Button } from '../../../../components/ui/button';
-import { Textarea } from '../../../../components/ui/textarea';
-import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetTrigger } from '../../../../components/ui/sheet';
-import { Badge } from '../../../../components/ui/badge';
-import { ScrollArea } from '../../../../components/ui/scroll-area';
-import { Separator } from '../../../../components/ui/separator';
+import { BranchToolbar } from '../../../components/chat/BranchToolbar';
+import { Button } from '../../../components/ui/button';
+import { Textarea } from '../../../components/ui/textarea';
+import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetTrigger } from '../../../components/ui/sheet';
+import { Badge } from '../../../components/ui/badge';
+import { ScrollArea } from '../../../components/ui/scroll-area';
+import { Separator } from '../../../components/ui/separator';
 import { Menu, Send, Library, Settings, Brain, Palette, Volume2, MessageSquare, Calendar, Video, Podcast, Image, History } from 'lucide-react';
-import { useBrandKit } from '../../../../contexts/BrandKitContext';
-import { Message } from '../../../../types/chat';
+import { useBrandKit } from '../../../contexts/BrandKitContext';
+import { Message } from '../../../types/chat';
+import { functionsUrl, FUNCTIONS_TOKEN } from '../../../utils/backend';
 
 interface ChatMobileProps {
   className?: string;
@@ -144,9 +145,9 @@ export function ChatMobile({ className = "" }: ChatMobileProps) {
       const measurePerformance = () => {
         const renderTime = performance.now() - startTime;
         
-        fetch('/api/events', {
+        fetch(functionsUrl('/api/events'), {
           method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
+          headers: { 'Content-Type': 'application/json', 'Authorization': Bearer  },
           body: JSON.stringify({
             event: 'chat_mobile_render',
             properties: {
@@ -185,9 +186,9 @@ export function ChatMobile({ className = "" }: ChatMobileProps) {
     if (Math.random() < 0.15) {
       performance.mark('chat-ttft-start');
       
-      fetch('/api/events', {
+      fetch(functionsUrl('/api/events'), {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+        headers: { 'Content-Type': 'application/json', 'Authorization': Bearer  },
         body: JSON.stringify({
           event: 'chat_message_sent',
           properties: {
@@ -430,3 +431,4 @@ export function ChatMobile({ className = "" }: ChatMobileProps) {
 }
 
 export default ChatMobile;
+

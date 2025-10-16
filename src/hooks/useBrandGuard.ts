@@ -1,6 +1,6 @@
 import { useState, useCallback } from 'react';
 import { brandGuardSDK, type GuardReport, type GuardFinding, type BrandKit } from '@/sdk/guard';
-import { useBrandKit } from '../contexts/BrandKitContext';
+import { useBrandKit } from '@/contexts/BrandKitContext';
 
 export interface BrandGuardState {
   isAnalyzing: boolean;
@@ -22,7 +22,6 @@ export interface BrandGuardActions {
 }
 
 export function useBrandGuard(): BrandGuardState & BrandGuardActions {
-  console.log('useBrandGuard hook called');
   const [state, setState] = useState<BrandGuardState>({
     isAnalyzing: false,
     lastReport: null,

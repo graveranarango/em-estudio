@@ -1,5 +1,5 @@
 import { FUNCTIONS_TOKEN, functionsUrl } from './backend';
-import type { ChatRequest, SSEEvent, AbortRequest, RegenerateRequest } from '../types/chat';
+import type { ChatRequest, SSEEvent, AbortRequest, RegenerateRequest } from '@/types/chat';
 
 export class ChatService {
   private baseUrl: string;

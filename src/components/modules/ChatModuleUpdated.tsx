@@ -31,14 +31,14 @@ import {
 
 import { useChat } from '../../hooks/useChat';
 import { useBrandGuard } from '../../hooks/useBrandGuard';
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '../ui/dialog';
-import { RadioGroup, RadioGroupItem } from '../ui/radio-group';
-import { Input } from '../ui/input';
-import { Label } from '../ui/label';
-import { Button } from '../ui/button';
-import { Textarea } from '../ui/textarea';
-import { Badge } from '../ui/badge';
-import { Progress } from '../ui/progress';
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
+import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
+import { Input } from '@/components/ui/input';
+import { Label } from '@/components/ui/label';
+import { Button } from '@/components/ui/button';
+import { Textarea } from '@/components/ui/textarea';
+import { Badge } from '@/components/ui/badge';
+import { Progress } from '@/components/ui/progress';
 import { BrandGuardChip } from '../chat/BrandGuardChip';
 import { BrandGuardPanel } from '../chat/BrandGuardPanel';
 
@@ -87,7 +87,7 @@ export function ChatModuleUpdated() {
     checkMobile();
     window.addEventListener('resize', checkMobile);
     return () => window.removeEventListener('resize', checkMobile);
-  }, [chat.setRightPanelOpen]);
+  }, [chat]);
 
   // Auto-scroll to bottom when new messages arrive
   useEffect(() => {

@@ -8,9 +8,9 @@ import type {
   Msg, 
   SSEEvent, 
   GoogleIARequest 
-} from '../sdk/chat/contracts';
-import type { ThreadSummary as APIThreadSummary, Branch } from '../sdk/threads/contracts';
-import threadsSDK from '../sdk/threads/index';
+} from '@/sdk/chat/contracts';
+import type { ThreadSummary as APIThreadSummary, Branch } from '@/sdk/threads/contracts';
+import threadsSDK from '@/sdk/threads/index';
 
 // Thread summary for history list (legacy, replaced by APIThreadSummary)
 export interface ThreadSummary {

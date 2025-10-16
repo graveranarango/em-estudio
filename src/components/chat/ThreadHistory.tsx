@@ -1,24 +1,24 @@
 // Componente de historial de hilos con soporte para branches
 import { useState, useEffect } from 'react';
-import { useThreads } from '../../hooks/useThreads';
-import { Card, CardContent, CardHeader, CardTitle } from '../ui/card';
-import { Button } from '../ui/button';
-import { Badge } from '../ui/badge';
-import { Input } from '../ui/input';
+import { useThreads } from '@/hooks/useThreads';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Button } from '@/components/ui/button';
+import { Badge } from '@/components/ui/badge';
+import { Input } from '@/components/ui/input';
 import { 
   Dialog, 
   DialogContent, 
   DialogHeader, 
   DialogTitle, 
   DialogFooter 
-} from '../ui/dialog';
+} from '@/components/ui/dialog';
 import { 
   DropdownMenu, 
   DropdownMenuContent, 
   DropdownMenuItem, 
   DropdownMenuTrigger,
   DropdownMenuSeparator 
-} from '../ui/dropdown-menu';
+} from '@/components/ui/dropdown-menu';
 import { 
   MessageSquare, 
   Plus, 
@@ -29,7 +29,7 @@ import {
   Calendar,
   Hash
 } from 'lucide-react';
-import { cn } from '../ui/utils';
+import { cn } from '@/components/ui/utils';
 
 interface ThreadHistoryProps {
   className?: string;

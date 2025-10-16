@@ -1,9 +1,9 @@
 import { Shield, AlertTriangle, CheckCircle, Loader2 } from 'lucide-react';
-import { Badge } from '../ui/badge';
-import { Button } from '../ui/button';
-import { Popover, PopoverContent, PopoverTrigger } from '../ui/popover';
+import { Badge } from '@/components/ui/badge';
+import { Button } from '@/components/ui/button';
+import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
 import { BrandGuardPanel } from './BrandGuardPanel';
-import type { GuardReport } from '../../src/sdk/guard/types';
+import type { GuardReport } from '@/sdk/guard/types';
 
 interface BrandGuardChipProps {
   report: GuardReport | null;

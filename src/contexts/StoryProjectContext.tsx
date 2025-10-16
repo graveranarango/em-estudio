@@ -1,5 +1,5 @@
 import React, { createContext, useContext, useState, ReactNode } from 'react';
-import { StoryProject, StoryBriefing, StoryConcept, StoryLayer, StoryCopywriting, StoryObjective } from '../types/stories';
+import { StoryProject, StoryBriefing, StoryConcept, StoryLayer, StoryCopywriting, StoryObjective } from '@/types/stories';
 
 interface StoryProjectContextType {
   currentProject: StoryProject | null;

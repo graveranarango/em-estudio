@@ -1,5 +1,5 @@
 import React, { createContext, useContext, useState, ReactNode } from 'react';
-import { VideoProject, VideoBriefing, VideoScene, VideoTimeline, VideoCopywriting, VideoType } from '../types/videos';
+import { VideoProject, VideoBriefing, VideoScene, VideoTimeline, VideoCopywriting, VideoType } from '@/types/videos';
 
 interface VideoProjectContextType {
   currentProject: VideoProject | null;

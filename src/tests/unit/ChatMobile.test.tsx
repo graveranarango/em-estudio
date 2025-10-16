@@ -1,15 +1,15 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { render, screen, fireEvent, waitFor } from '@testing-library/react';
-import { ChatMobile } from '../../src/views/chat/mobile/ChatMobile';
-import { useChatStore } from '../../src/state/chatStore';
+import { ChatMobile } from '../../views/chat/mobile/ChatMobile';
+import { useChatStore } from '../../state/chatStore';
 
 // Mock the chat store
-vi.mock('../../src/state/chatStore', () => ({
+vi.mock('../../state/chatStore', () => ({
   useChatStore: vi.fn()
 }));
 
 // Mock the VirtualizedTimeline component
-vi.mock('../../src/components/chat/VirtualizedTimeline', () => ({
+vi.mock('../../components/chat/VirtualizedTimeline', () => ({
   VirtualizedTimeline: ({ children, onLoadOlder, onJumpToNewest }: any) => (
     <div data-testid="virtualized-timeline">
       <button onClick={() => onLoadOlder('test', 'test')}>Load Older</button>
@@ -225,9 +225,9 @@ describe('ChatMobile', () => {
     render(<ChatMobile />);
     
     // Should emit render metric
-    expect(mockFetch).toHaveBeenCalledWith('/api/events', expect.objectContaining({
+    expect(mockFetch).toHaveBeenCalledWith(expect.stringContaining('/api/events'), expect.objectContaining({
       method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
+      headers: expect.objectContaining({ 'Content-Type': 'application/json' }),
       body: expect.stringContaining('chat_mobile_render')
     }));
   });

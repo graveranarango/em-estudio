@@ -42,7 +42,6 @@ export interface UseChatReturn {
 }
 
 export function useChat(jwt?: string): UseChatReturn {
-  console.log('useChat hook called');
   // Get state and actions from store
   const {
     threadId,

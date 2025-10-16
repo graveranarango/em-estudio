@@ -1,9 +1,9 @@
 // Shared Conversation View Component for Chat Maestro
 import React, { useEffect, useState } from 'react';
-import { Card, CardContent, CardHeader, CardTitle } from '../ui/card';
-import { Badge } from '../ui/badge';
-import { Avatar, AvatarContent, AvatarFallback } from '../ui/avatar';
-import { Separator } from '../ui/separator';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Badge } from '@/components/ui/badge';
+import { Avatar, AvatarContent, AvatarFallback } from '@/components/ui/avatar';
+import { Separator } from '@/components/ui/separator';
 import { 
   Eye, 
   MessageSquare, 
@@ -14,9 +14,9 @@ import {
   Bot,
   Settings
 } from 'lucide-react';
-import { exportSDK, ShareGetResult } from '../../src/sdk/export';
-import { Alert, AlertDescription } from '../ui/alert';
-import { Skeleton } from '../ui/skeleton';
+import { exportSDK, ShareGetResult } from '@/sdk/export';
+import { Alert, AlertDescription } from '@/components/ui/alert';
+import { Skeleton } from '@/components/ui/skeleton';
 
 interface SharedConversationViewProps {
   token: string;

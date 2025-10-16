@@ -7,13 +7,13 @@ import {
   DialogFooter,
   DialogHeader,
   DialogTitle,
-} from '../ui/dialog';
-import { Button } from '../ui/button';
-import { Label } from '../ui/label';
-import { RadioGroup, RadioGroupItem } from '../ui/radio-group';
-import { Checkbox } from '../ui/checkbox';
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '../ui/select';
-import { Badge } from '../ui/badge';
+} from '@/components/ui/dialog';
+import { Button } from '@/components/ui/button';
+import { Label } from '@/components/ui/label';
+import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
+import { Checkbox } from '@/components/ui/checkbox';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import { Badge } from '@/components/ui/badge';
 import { 
   FileText, 
   Globe, 
@@ -25,8 +25,8 @@ import {
   AlertCircle 
 } from 'lucide-react';
 import { useExportShare } from '../../hooks/useExportShare';
-import { ExportRequest } from '../../src/sdk/export';
-import { Separator } from '../ui/separator';
+import { ExportRequest } from '@/sdk/export';
+import { Separator } from '@/components/ui/separator';
 
 interface ExportDialogProps {
   open: boolean;

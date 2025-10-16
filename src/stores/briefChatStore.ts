@@ -1,7 +1,6 @@
 import { create } from 'zustand';
 import { devtools, persist } from 'zustand/middleware';
-import { db } from '../../firebase';
-import { doc, setDoc, getDoc, collection, Timestamp } from 'firebase/firestore';
+
 export interface ChatMessage {
   id: string;
   role: 'user' | 'assistant' | 'system';
@@ -710,7 +709,7 @@ export const useBriefChatStore = create<BriefChatState>()(
             // Here you would save to your backend/Firestore
             console.log('Saving brief data:', state.briefData);
             console.log('Saving chat messages:', state.messages);
-
+            
             // Simulate API call
             await new Promise(resolve => setTimeout(resolve, 500));
             
@@ -725,10 +724,10 @@ export const useBriefChatStore = create<BriefChatState>()(
           try {
             // Here you would load from your backend/Firestore
             console.log('Loading brief:', briefId);
-
+            
             // Simulate API call
             await new Promise(resolve => setTimeout(resolve, 500));
-
+            
             // This would be your loaded data
             // set({ briefData: loadedData, messages: loadedMessages });
           } catch (error) {

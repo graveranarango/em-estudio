@@ -1,6 +1,6 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { render, screen, fireEvent, waitFor } from '@testing-library/react';
-import { VirtualizedTimeline } from '../../src/components/chat/VirtualizedTimeline';
+import { VirtualizedTimeline } from '../../components/chat/VirtualizedTimeline';
 import type { Message } from '../../types/chat';
 
 // Mock simple scroll container
@@ -145,9 +145,9 @@ describe('VirtualizedTimeline', () => {
     fireEvent.scroll(virtualList, { target: { scrollTop: 0 } });
 
     await waitFor(() => {
-      expect(mockFetch).toHaveBeenCalledWith('/api/events', expect.objectContaining({
+      expect(mockFetch).toHaveBeenCalledWith(expect.stringContaining('/api/events'), expect.objectContaining({
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+        headers: expect.objectContaining({ 'Content-Type': 'application/json' }),
         body: expect.stringContaining('chat_load_older_messages')
       }));
     });

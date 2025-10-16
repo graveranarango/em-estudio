@@ -1,5 +1,5 @@
 import React, { createContext, useContext, useState, ReactNode } from 'react';
-import { PostProject, PostBriefing, PostConfiguration, PostDesign, PostCopywriting } from '../types/posts';
+import { PostProject, PostBriefing, PostConfiguration, PostDesign, PostCopywriting } from '@/types/posts';
 
 interface PostProjectContextType {
   currentProject: PostProject | null;

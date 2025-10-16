@@ -1,4 +1,5 @@
 // Chat SDK exports
+import { functionsUrl } from '../../utils/backend';
 
 export * from './contracts';
 import type { ChatRequest, SSEEvent, ThreadData, SignUploadResponse } from './contracts';
@@ -72,7 +73,7 @@ export async function stream(
   const runId = `run_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
   
   try {
-    const response = await fetch('/make-server-ecf7df64/api/chat/stream', {
+    const response = await fetch(functionsUrl('/api/chat/stream'), {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
@@ -128,7 +129,7 @@ export async function abort(
   jwt?: string
 ): Promise<void> {
   try {
-    const response = await fetch('/make-server-ecf7df64/api/chat/abort', {
+    const response = await fetch(functionsUrl('/api/chat/abort'), {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
@@ -154,7 +155,7 @@ export async function regenerate(
   jwt?: string
 ): Promise<void> {
   try {
-    const response = await fetch('/make-server-ecf7df64/api/chat/regenerate', {
+    const response = await fetch(functionsUrl('/api/chat/regenerate'), {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
@@ -179,7 +180,7 @@ export async function signUpload(
   jwt?: string
 ): Promise<SignUploadResponse> {
   try {
-    const response = await fetch('/make-server-ecf7df64/api/chat/attach/sign', {
+    const response = await fetch(functionsUrl('/api/chat/attach/sign'), {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
@@ -205,7 +206,7 @@ export async function saveThread(
   jwt?: string
 ): Promise<void> {
   try {
-    const response = await fetch('/make-server-ecf7df64/api/chat/thread/save', {
+    const response = await fetch(functionsUrl('/api/chat/thread/save'), {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',

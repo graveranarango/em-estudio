@@ -1,7 +1,7 @@
 // Hook personalizado para gestión de threads y branches
 import { useCallback } from 'react';
-import { useChatStore } from '@/state/chatStore';
-import threadsSDK from '@/sdk/threads/index';
+import { useChatStore } from '../src/state/chatStore';
+import threadsSDK from '../src/sdk/threads/index';
 import { toast } from 'sonner@2.0.3';
 
 export function useThreads() {
