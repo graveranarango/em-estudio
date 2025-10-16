@@ -1,5 +1,8 @@
 import { create } from 'zustand';
 import { devtools, persist } from 'zustand/middleware';
+import { db } from '../../firebase';
+import { doc, setDoc, getDoc, collection } from 'firebase/firestore';
+import { Timestamp } from 'firebase/firestore';
 
 export interface ChatMessage {
   id: string;
@@ -91,6 +94,7 @@ interface BriefChatState {
   isTyping: boolean;
   
   // Brief State
+  briefId: string | null;
   briefData: BriefData;
   activeBriefSection: string;
   
@@ -435,6 +439,7 @@ export const useBriefChatStore = create<BriefChatState>()(
         ],
         isLoading: false,
         isTyping: false,
+        briefId: null,
         briefData: initialBriefData,
         activeBriefSection: 'objetivo',
         conflicts: [],
@@ -706,12 +711,27 @@ export const useBriefChatStore = create<BriefChatState>()(
         saveBrief: async () => {
           const state = get();
           try {
-            // Here you would save to your backend/Firestore
-            console.log('Saving brief data:', state.briefData);
-            console.log('Saving chat messages:', state.messages);
-            
-            // Simulate API call
-            await new Promise(resolve => setTimeout(resolve, 500));
+            let briefId = state.briefId;
+            if (!briefId) {
+              briefId = doc(collection(db, 'briefs')).id;
+              set({ briefId });
+            }
+
+            const briefRef = doc(db, 'briefs', briefId);
+
+            // Convert dates to Timestamps for Firestore
+            const messagesWithTimestamps = state.messages.map(msg => ({
+              ...msg,
+              timestamp: Timestamp.fromDate(new Date(msg.timestamp)),
+            }));
+
+            const saveData = {
+              briefData: state.briefData,
+              messages: messagesWithTimestamps,
+              lastSaved: Timestamp.now(),
+            };
+
+            await setDoc(briefRef, saveData, { merge: true });
             
             get().markSaved();
           } catch (error) {
@@ -721,15 +741,30 @@ export const useBriefChatStore = create<BriefChatState>()(
         },
 
         loadBrief: async (briefId?: string) => {
+          if (!briefId) return;
           try {
-            // Here you would load from your backend/Firestore
-            console.log('Loading brief:', briefId);
-            
-            // Simulate API call
-            await new Promise(resolve => setTimeout(resolve, 500));
-            
-            // This would be your loaded data
-            // set({ briefData: loadedData, messages: loadedMessages });
+            const briefRef = doc(db, 'briefs', briefId);
+            const briefSnap = await getDoc(briefRef);
+
+            if (briefSnap.exists()) {
+              const data = briefSnap.data();
+
+              // Convert Timestamps back to Dates
+              const messages = data.messages.map((msg: any) => ({
+                ...msg,
+                timestamp: msg.timestamp.toDate(),
+              }));
+
+              set({
+                briefId: briefSnap.id,
+                briefData: data.briefData,
+                messages,
+                lastSaved: data.lastSaved.toDate(),
+                hasUnsavedChanges: false,
+              });
+            } else {
+              console.log('No such document!');
+            }
           } catch (error) {
             console.error('Error loading brief:', error);
             throw error;
@@ -778,3 +813,7 @@ export const useBriefChatStore = create<BriefChatState>()(
 );
 
 export { briefSections };
+
+if (import.meta.env.DEV) {
+  (window as any).zustandStore = useBriefChatStore;
+}
