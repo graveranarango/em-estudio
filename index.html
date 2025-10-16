@@ -1,11 +1,30 @@
 
   <!DOCTYPE html>
   <html lang="en">
-    <head>
-      <meta charset="UTF-8" />
-      <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-      <title>Content Studio Wireframe</title>
-    </head>
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Content Studio Wireframe</title>
+    <script>
+      // Suppress duplicate custom element definition noise during dev/HMR
+      (function () {
+        window.addEventListener(
+          'error',
+          function (e) {
+            try {
+              var msg = String((e && e.message) || '');
+              if (msg.indexOf('mce-autosize-textarea') !== -1 && msg.indexOf('already been defined') !== -1) {
+                e.preventDefault();
+                e.stopImmediatePropagation();
+                return false;
+              }
+            } catch (_) {}
+          },
+          true
+        );
+      })();
+    </script>
+  </head>
 
     <body>
       <div id="root"></div>

@@ -1,4 +1,4 @@
-import { initializeApp } from 'firebase/app';
+import { initializeApp, getApps, getApp } from 'firebase/app';
 import { getFirestore, connectFirestoreEmulator, enableNetwork, disableNetwork } from 'firebase/firestore';
 
 const firebaseConfig = {
@@ -10,8 +10,8 @@ const firebaseConfig = {
   appId: "1:123456789:web:abcdefghijklmnop"
 };
 
-// Initialize Firebase
-const app = initializeApp(firebaseConfig);
+// Initialize Firebase (reuse existing default app if present)
+const app = getApps().length ? getApp() : initializeApp(firebaseConfig);
 
 // Initialize Firestore with offline support
 const firestore = getFirestore(app);
