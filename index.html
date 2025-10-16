@@ -7,7 +7,24 @@
     <title>Content Studio Wireframe</title>
     <script>
       // Suppress duplicate custom element definition noise during dev/HMR
+      // and proactively avoid re-defining the specific element.
       (function () {
+        try {
+          var origDefine = window.customElements && window.customElements.define;
+          if (origDefine) {
+            var boundDefine = origDefine.bind(window.customElements);
+            window.customElements.define = function (name, ctor, opts) {
+              if (name === 'mce-autosize-textarea' && window.customElements.get(name)) {
+                // Avoid throwing on re-definition during HMR
+                return;
+              }
+              return boundDefine(name, ctor, opts);
+            };
+          }
+        } catch (e) {
+          // ignore
+        }
+
         window.addEventListener(
           'error',
           function (e) {
