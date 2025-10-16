@@ -112,6 +112,9 @@ export interface ChatState {
   deleteBranch: (branchId: string) => Promise<void>;
   branchFromMessage: (messageId: string, name?: string) => Promise<string>;
   
+  // Messages refresh
+  refreshMessages: () => Promise<void>;
+  
   // SSE event handler
   handleSSEEvent: (event: SSEEvent) => void;
   
@@ -492,7 +495,15 @@ export const useChatStore = create<ChatState>()(
 
         console.log(`[ChatStore] Switched to branch ${branchId}`);
         
-        // TODO: Load messages for the branch
+        // Load messages for the branch
+        try {
+          const messages = await threadsSDK.getMessages(state.threadId, branchId);
+          set((s) => {
+            s.messages = messages;
+          });
+        } catch (e) {
+          console.error('[ChatStore] Failed to load branch messages:', e);
+        }
         
       } catch (error) {
         console.error('[ChatStore] Failed to switch branch:', error);
@@ -701,6 +712,21 @@ export const useChatStore = create<ChatState>()(
       set((state) => {
         state.isLoading = isLoading;
       })
+      ,
+
+    // Messages refresh (polling-friendly)
+    refreshMessages: async () => {
+      try {
+        const state = get();
+        if (!state.threadId || !state.branchId) return;
+        const messages = await threadsSDK.getMessages(state.threadId, state.branchId);
+        set((s) => {
+          s.messages = messages;
+        });
+      } catch (error) {
+        console.error('[ChatStore] Failed to refresh messages:', error);
+      }
+    }
   }))
 );
 

@@ -76,6 +76,9 @@ export function ChatModuleUpdated() {
   // Refs
   const textareaRef = useRef<HTMLTextAreaElement>(null);
   const timelineRef = useRef<HTMLDivElement>(null);
+  const threadId = useChatStore((s) => s.threadId);
+  const branchId = useChatStore((s) => s.branchId);
+  const refreshMessages = useChatStore((s) => s.refreshMessages);
 
   // Mobile detection
   useEffect(() => {
@@ -97,6 +100,19 @@ export function ChatModuleUpdated() {
       timelineRef.current.scrollTop = timelineRef.current.scrollHeight;
     }
   }, [chat.messages]);
+
+  // Auto-refresh messages (polling) while not streaming
+  useEffect(() => {
+    if (!threadId || !branchId) return;
+    let timer: any;
+    const tick = async () => {
+      if (!chat.isStreaming) {
+        await refreshMessages();
+      }
+    };
+    timer = setInterval(tick, 4000);
+    return () => clearInterval(timer);
+  }, [threadId, branchId, chat.isStreaming, refreshMessages]);
 
   // Post-check assistant messages with Brand Guard
   useEffect(() => {
