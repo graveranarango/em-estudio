@@ -1,0 +1,42 @@
+type Musician @table {
+  displayName: String!
+  createdAt: Timestamp!
+  email: String
+  bio: String
+  instrument: String
+  profilePictureUrl: String
+}
+
+type Composition @table {
+  musician: Musician
+  title: String!
+  createdAt: Timestamp!
+  updatedAt: Timestamp!
+  genre: String
+  description: String
+  fileUrl: String
+  isPublic: Boolean
+}
+
+type PracticeSession @table {
+  musician: Musician
+  startTime: Timestamp!
+  endTime: Timestamp!
+  createdAt: Timestamp!
+  notes: String
+  practicedSkills: [String]
+}
+
+type Group @table {
+  name: String!
+  createdAt: Timestamp!
+  description: String
+  isPublic: Boolean
+}
+
+type GroupMember @table(key: ["musician", "group"]) {
+  musician: Musician!
+  group: Group!
+  role: String!
+  joinedAt: Timestamp!
+}

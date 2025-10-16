@@ -1,0 +1,33 @@
+mutation CreateMusician @auth(level: USER) {
+  musician_insert(data: {
+    displayName: "New Musician",
+    createdAt_expr: "request.time",
+    id_expr: "uuidV4()"
+  })
+}
+
+query ListPublicCompositions @auth(level: PUBLIC, insecureReason: "This operation is safe to expose to the public") {
+  compositions(where: {isPublic: {eq: true}}) {
+    id
+    title
+    description
+    fileUrl
+    genre
+  }
+}
+
+mutation UpdatePracticeSessionNotes($id: UUID!, $notes: String) @auth(level: USER) {
+  practiceSession_update(
+    key: {id: $id}
+    data: {notes: $notes, endTime_expr: "request.time"}
+  )
+}
+
+query ListMyGroups @auth(level: USER) {
+  groups {
+    id
+    name
+    description
+    isPublic
+  }
+}
