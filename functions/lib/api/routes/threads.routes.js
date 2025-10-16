@@ -16,5 +16,8 @@ router.post('/deleteBranch', auth_1.isAuthenticated, threads_controller_1.delete
 // These are not fully implemented in the controller, but we'll add the routes
 router.post('/switchBranch', auth_1.isAuthenticated, threads_controller_1.switchBranch);
 router.post('/branchFromMessage', auth_1.isAuthenticated, threads_controller_1.branchFromMessage);
+// Messages
+router.get('/getMessages', auth_1.isAuthenticated, threads_controller_1.getMessages);
+router.post('/addMessage', auth_1.isAuthenticated, threads_controller_1.addMessage);
 exports.default = router;
 //# sourceMappingURL=threads.routes.js.map

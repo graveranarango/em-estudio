@@ -163,3 +163,58 @@ export const switchBranch = async (req: Request, res: Response) => {
 export const branchFromMessage = async (req: Request, res: Response) => {
   res.status(501).send({ message: 'Not implemented' });
 };
+
+// === Messages APIs ===
+export const getMessages = async (req: Request, res: Response) => {
+  const threadId = (req.query.threadId as string) || '';
+  const branchId = (req.query.branchId as string) || '';
+
+  if (!threadId || !branchId) {
+    return res.status(400).send({ error: "Missing 'threadId' or 'branchId' in query" });
+  }
+
+  try {
+    const messagesRef = admin
+      .firestore()
+      .collection('threads')
+      .doc(threadId)
+      .collection('branches')
+      .doc(branchId)
+      .collection('messages');
+
+    const snap = await messagesRef.orderBy('createdAt', 'asc').get();
+    const messages = snap.docs.map((d) => ({ id: d.id, ...d.data() }));
+    return res.status(200).send({ messages });
+  } catch (error) {
+    functions.logger.error('Error getting messages:', error);
+    return res.status(500).send({ error: 'Failed to get messages.' });
+  }
+};
+
+export const addMessage = async (req: Request, res: Response) => {
+  const { threadId, branchId, message } = req.body || {};
+  if (!threadId || !branchId || !message) {
+    return res.status(400).send({ error: "Missing 'threadId', 'branchId' or 'message' in body" });
+  }
+
+  try {
+    const messagesRef = admin
+      .firestore()
+      .collection('threads')
+      .doc(threadId)
+      .collection('branches')
+      .doc(branchId)
+      .collection('messages');
+
+    const payload = {
+      ...message,
+      createdAt: message.createdAt || admin.firestore.FieldValue.serverTimestamp(),
+    };
+
+    const docRef = await messagesRef.add(payload);
+    return res.status(200).send({ id: docRef.id, createdAt: payload.createdAt });
+  } catch (error) {
+    functions.logger.error('Error adding message:', error);
+    return res.status(500).send({ error: 'Failed to add message.' });
+  }
+};

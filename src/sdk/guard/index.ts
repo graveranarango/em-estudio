@@ -34,7 +34,11 @@ export class BrandGuardSDK {
   /**
    * Quick pre-check for user input before sending to chat
    */
-  async preCheckUserMessage(text: string, brand: BrandKit, context?: { objective?: string; audience?: string }): Promise<GuardCheckResponse> {
+  async preCheckUserMessage(
+    text: string,
+    brand: BrandKit,
+    context?: { objective?: string; audience?: string }
+  ): Promise<GuardCheckResponse> {
     return this.checkText({
       text,
       role: 'user',
@@ -46,7 +50,11 @@ export class BrandGuardSDK {
   /**
    * Post-check for assistant response before displaying
    */
-  async postCheckAssistantMessage(text: string, brand: BrandKit, context?: { objective?: string; audience?: string }): Promise<GuardCheckResponse> {
+  async postCheckAssistantMessage(
+    text: string,
+    brand: BrandKit,
+    context?: { objective?: string; audience?: string }
+  ): Promise<GuardCheckResponse> {
     return this.checkText({
       text,
       role: 'assistant',
@@ -68,12 +76,10 @@ export class BrandGuardSDK {
    * Convert BrandKit context data to Brand Guard format
    */
   convertBrandKitToBrandGuard(brandKitData: any): BrandKit {
-    // Extract tone guidelines from voice tone
     const voiceToneStyle = brandKitData.voiceTone?.style || '';
     const correctExamples = brandKitData.voiceTone?.examples?.correct || [];
     const incorrectExamples = brandKitData.voiceTone?.examples?.incorrect || [];
     
-    // Default tone guidelines based on voice tone
     let toneDoList = ['profesional', 'claro', 'consistente'];
     let toneDontList = ['agresivo', 'confuso', 'inconsistente'];
     
@@ -97,7 +103,7 @@ export class BrandGuardSDK {
         banned: ['spam', 'scam', 'fake', 'gratis!!!']
       },
       style: {
-        emoji: true, // Allow by default
+        emoji: true,
         exclamationMax: voiceToneStyle.toLowerCase().includes('enérgico') ? 3 : 1,
         linksPolicy: 'need-disclaimer'
       },

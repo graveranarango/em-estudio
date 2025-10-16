@@ -1,6 +1,6 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.branchFromMessage = exports.switchBranch = exports.deleteBranch = exports.renameBranch = exports.createBranch = exports.deleteThread = exports.renameThread = exports.createThread = exports.listThreads = void 0;
+exports.addMessage = exports.getMessages = exports.branchFromMessage = exports.switchBranch = exports.deleteBranch = exports.renameBranch = exports.createBranch = exports.deleteThread = exports.renameThread = exports.createThread = exports.listThreads = void 0;
 const admin = require("firebase-admin");
 const functions = require("firebase-functions");
 const listThreads = async (req, res) => {
@@ -147,4 +147,52 @@ const branchFromMessage = async (req, res) => {
     res.status(501).send({ message: 'Not implemented' });
 };
 exports.branchFromMessage = branchFromMessage;
+// === Messages APIs ===
+const getMessages = async (req, res) => {
+    const threadId = req.query.threadId || '';
+    const branchId = req.query.branchId || '';
+    if (!threadId || !branchId) {
+        return res.status(400).send({ error: "Missing 'threadId' or 'branchId' in query" });
+    }
+    try {
+        const messagesRef = admin
+            .firestore()
+            .collection('threads')
+            .doc(threadId)
+            .collection('branches')
+            .doc(branchId)
+            .collection('messages');
+        const snap = await messagesRef.orderBy('createdAt', 'asc').get();
+        const messages = snap.docs.map((d) => (Object.assign({ id: d.id }, d.data())));
+        return res.status(200).send({ messages });
+    }
+    catch (error) {
+        functions.logger.error('Error getting messages:', error);
+        return res.status(500).send({ error: 'Failed to get messages.' });
+    }
+};
+exports.getMessages = getMessages;
+const addMessage = async (req, res) => {
+    const { threadId, branchId, message } = req.body || {};
+    if (!threadId || !branchId || !message) {
+        return res.status(400).send({ error: "Missing 'threadId', 'branchId' or 'message' in body" });
+    }
+    try {
+        const messagesRef = admin
+            .firestore()
+            .collection('threads')
+            .doc(threadId)
+            .collection('branches')
+            .doc(branchId)
+            .collection('messages');
+        const payload = Object.assign(Object.assign({}, message), { createdAt: message.createdAt || admin.firestore.FieldValue.serverTimestamp() });
+        const docRef = await messagesRef.add(payload);
+        return res.status(200).send({ id: docRef.id, createdAt: payload.createdAt });
+    }
+    catch (error) {
+        functions.logger.error('Error adding message:', error);
+        return res.status(500).send({ error: 'Failed to add message.' });
+    }
+};
+exports.addMessage = addMessage;
 //# sourceMappingURL=threads.controller.js.map

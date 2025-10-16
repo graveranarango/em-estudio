@@ -9,7 +9,9 @@ import {
   renameBranch,
   deleteBranch,
   switchBranch,
-  branchFromMessage
+  branchFromMessage,
+  getMessages,
+  addMessage
 } from '../controllers/threads.controller';
 
 const router = Router();
@@ -28,5 +30,9 @@ router.post('/deleteBranch', isAuthenticated, deleteBranch);
 // These are not fully implemented in the controller, but we'll add the routes
 router.post('/switchBranch', isAuthenticated, switchBranch);
 router.post('/branchFromMessage', isAuthenticated, branchFromMessage);
+
+// Messages
+router.get('/getMessages', isAuthenticated, getMessages);
+router.post('/addMessage', isAuthenticated, addMessage);
 
 export default router;

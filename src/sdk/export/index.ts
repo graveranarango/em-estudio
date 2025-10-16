@@ -159,10 +159,8 @@ export class ExportSDK {
    */
   async downloadExport(result: ExportResult): Promise<void> {
     if (result.url) {
-      // For PDF exports, open the signed URL
       window.open(result.url, '_blank');
     } else if (result.content) {
-      // For text-based exports, trigger download
       const blob = new Blob([result.content], { 
         type: result.filename.endsWith('.html') ? 'text/html' : 'text/markdown' 
       });
@@ -185,7 +183,6 @@ export class ExportSDK {
     if (navigator.clipboard) {
       await navigator.clipboard.writeText(content);
     } else {
-      // Fallback for older browsers
       const textArea = document.createElement('textarea');
       textArea.value = content;
       document.body.appendChild(textArea);
