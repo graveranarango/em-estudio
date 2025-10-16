@@ -1,5 +1,6 @@
 // Threads SDK implementation
 
+import { auth } from '../../firebase';
 import { 
   ThreadSummary, 
   Branch, 
@@ -11,11 +12,22 @@ import {
   BranchFromMessageResponse
 } from './contracts';
 
-const API_BASE = '/make-server-ecf7df64/api';
+const API_BASE = '/api';
 
 class ThreadsSDK {
+  private async getAuthHeaders() {
+    const user = auth.currentUser;
+    if (!user) return {};
+    const token = await user.getIdToken();
+    return {
+      'Content-Type': 'application/json',
+      'Authorization': `Bearer ${token}`
+    };
+  }
+
   async listThreads(): Promise<ThreadSummary[]> {
-    const response = await fetch(`${API_BASE}/threads/list`);
+    const headers = await this.getAuthHeaders();
+    const response = await fetch(`${API_BASE}/listThreads`, { headers });
     if (!response.ok) {
       throw new Error('Failed to list threads');
     }
@@ -24,9 +36,10 @@ class ThreadsSDK {
   }
 
   async createThread(request: CreateThreadRequest): Promise<CreateThreadResponse> {
-    const response = await fetch(`${API_BASE}/thread/create`, {
+    const headers = await this.getAuthHeaders();
+    const response = await fetch(`${API_BASE}/createThread`, {
       method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
+      headers,
       body: JSON.stringify(request)
     });
     
@@ -38,9 +51,10 @@ class ThreadsSDK {
   }
 
   async renameThread(threadId: string, title: string): Promise<void> {
-    const response = await fetch(`${API_BASE}/thread/rename`, {
+    const headers = await this.getAuthHeaders();
+    const response = await fetch(`${API_BASE}/renameThread`, {
       method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
+      headers,
       body: JSON.stringify({ threadId, title })
     });
     
@@ -50,9 +64,10 @@ class ThreadsSDK {
   }
 
   async deleteThread(threadId: string): Promise<void> {
-    const response = await fetch(`${API_BASE}/thread/delete`, {
+    const headers = await this.getAuthHeaders();
+    const response = await fetch(`${API_BASE}/deleteThread`, {
       method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
+      headers,
       body: JSON.stringify({ threadId })
     });
     
@@ -62,9 +77,10 @@ class ThreadsSDK {
   }
 
   async createBranch(threadId: string, name: string): Promise<CreateBranchResponse> {
-    const response = await fetch(`${API_BASE}/branch/create`, {
+    const headers = await this.getAuthHeaders();
+    const response = await fetch(`${API_BASE}/createBranch`, {
       method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
+      headers,
       body: JSON.stringify({ threadId, name })
     });
     
@@ -76,9 +92,10 @@ class ThreadsSDK {
   }
 
   async renameBranch(branchId: string, name: string): Promise<void> {
-    const response = await fetch(`${API_BASE}/branch/rename`, {
+    const headers = await this.getAuthHeaders();
+    const response = await fetch(`${API_BASE}/renameBranch`, {
       method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
+      headers,
       body: JSON.stringify({ branchId, name })
     });
     
@@ -88,9 +105,10 @@ class ThreadsSDK {
   }
 
   async deleteBranch(branchId: string): Promise<void> {
-    const response = await fetch(`${API_BASE}/branch/delete`, {
+    const headers = await this.getAuthHeaders();
+    const response = await fetch(`${API_BASE}/deleteBranch`, {
       method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
+      headers,
       body: JSON.stringify({ branchId })
     });
     
@@ -100,9 +118,10 @@ class ThreadsSDK {
   }
 
   async switchBranch(threadId: string, branchId: string): Promise<void> {
-    const response = await fetch(`${API_BASE}/branch/switch`, {
+    const headers = await this.getAuthHeaders();
+    const response = await fetch(`${API_BASE}/switchBranch`, {
       method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
+      headers,
       body: JSON.stringify({ threadId, branchId })
     });
     
@@ -116,9 +135,10 @@ class ThreadsSDK {
     messageId: string, 
     name?: string
   ): Promise<BranchFromMessageResponse> {
-    const response = await fetch(`${API_BASE}/message/branch-from`, {
+    const headers = await this.getAuthHeaders();
+    const response = await fetch(`${API_BASE}/branchFromMessage`, {
       method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
+      headers,
       body: JSON.stringify({ threadId, messageId, name })
     });
     
@@ -131,6 +151,31 @@ class ThreadsSDK {
 
   getDefaultBranch(thread: ThreadSummary): Branch | undefined {
     return thread.branches.find(branch => branch.isDefault) || thread.branches[0];
+  }
+
+  async getMessages(threadId: string, branchId: string): Promise<any[]> {
+    const headers = await this.getAuthHeaders();
+    const response = await fetch(`${API_BASE}/getMessages?threadId=${threadId}&branchId=${branchId}`, { headers });
+    if (!response.ok) {
+      throw new Error('Failed to get messages');
+    }
+    const data = await response.json();
+    return data.messages || [];
+  }
+
+  async addMessage(threadId: string, branchId: string, message: any): Promise<any> {
+    const headers = await this.getAuthHeaders();
+    const response = await fetch(`${API_BASE}/addMessage`, {
+      method: 'POST',
+      headers,
+      body: JSON.stringify({ threadId, branchId, message })
+    });
+
+    if (!response.ok) {
+      throw new Error('Failed to add message');
+    }
+
+    return response.json();
   }
 }
 

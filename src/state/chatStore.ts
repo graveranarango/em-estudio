@@ -70,6 +70,9 @@ export interface ChatState {
   
   // Error state
   error?: string;
+
+  // Loading state
+  isLoading: boolean;
   
   // Actions
   setSystem: (system: string) => void;
@@ -115,6 +118,9 @@ export interface ChatState {
   // Error handling
   setError: (error?: string) => void;
   clearError: () => void;
+
+  // Loading action
+  setLoading: (isLoading: boolean) => void;
 }
 
 // Default settings
@@ -156,6 +162,7 @@ export const useChatStore = create<ChatState>()(
     },
     history: [],
     branches: [],
+    isLoading: true,
     
     // Basic setters
     setSystem: (system: string) => 
@@ -206,6 +213,15 @@ export const useChatStore = create<ChatState>()(
         };
         state.messages.push(userMessage);
         state.composerText = ''; // Clear composer after sending
+
+        // Persist the message to the backend
+        if (state.threadId && state.branchId) {
+          threadsSDK.addMessage(state.threadId, state.branchId, userMessage)
+            .catch(error => {
+              console.error('[ChatStore] Failed to save message:', error);
+              // Optionally, handle the error in the UI
+            });
+        }
 
         // Perform Brand Guard check
         if (state.settings.brandGuard) {
@@ -361,15 +377,19 @@ export const useChatStore = create<ChatState>()(
           state.threadId = threadId;
           state.branchId = targetBranch.id;
           state.branches = threadSummary.branches;
-          state.messages = []; // Will be loaded separately
+          state.messages = [];
           state.streaming = { status: 'idle' };
           state.googleIaRequest = undefined;
           state.error = undefined;
         });
 
         console.log(`[ChatStore] Selected thread ${threadId}, branch ${targetBranch.name}`);
-        
-        // TODO: Load messages for the specific branch from backend
+
+        // Load messages for the selected branch
+        const messages = await threadsSDK.getMessages(threadId, targetBranch.id);
+        set((state) => {
+          state.messages = messages;
+        });
         
       } catch (error) {
         console.error('[ChatStore] Failed to select thread:', error);
@@ -675,6 +695,11 @@ export const useChatStore = create<ChatState>()(
     clearError: () => 
       set((state) => {
         state.error = undefined;
+      }),
+
+    setLoading: (isLoading: boolean) =>
+      set((state) => {
+        state.isLoading = isLoading;
       })
   }))
 );

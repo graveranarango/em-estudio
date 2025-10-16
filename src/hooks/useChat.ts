@@ -1,4 +1,4 @@
-import { useCallback, useRef } from 'react';
+import { useCallback, useRef, useEffect } from 'react';
 import { ChatSDK, stream, abort, regenerate, signUpload, saveThread } from '@/sdk/chat';
 import { useChatStore, useChatSelectors } from '@/state/chatStore';
 import type { 
@@ -70,6 +70,23 @@ export function useChat(jwt?: string): UseChatReturn {
   const isStreaming = useChatSelectors.useIsStreaming();
   const canSendMessage = useChatSelectors.useCanSendMessage();
   const canAbort = useChatSelectors.useCanAbort();
+
+  // Load initial data on mount
+  useEffect(() => {
+    const loadInitialData = async () => {
+      const { history, loadHistory, selectThread, setLoading } = useChatStore.getState();
+      setLoading(true);
+      if (history.length === 0) {
+        await loadHistory();
+        const { history: updatedHistory } = useChatStore.getState();
+        if (updatedHistory.length > 0) {
+          await selectThread(updatedHistory[0].id);
+        }
+      }
+      setLoading(false);
+    };
+    loadInitialData();
+  }, []);
 
   const sdkRef = useRef<ChatSDK>(new ChatSDK(jwt));
   const currentRunIdRef = useRef<string>();
