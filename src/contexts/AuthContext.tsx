@@ -10,17 +10,29 @@ export const AuthProvider = ({ children }) => {
   const [error, setError] = useState<Error | null>(null);
 
   useEffect(() => {
-    const unsubscribe = onAuthStateChanged(auth, (fbUser) => {
-      if (fbUser && fbUser.email === import.meta.env.VITE_ADMIN_EMAIL) {
-        setUser(fbUser);
-      } else {
-        setUser(null);
+    const allowedEmail = import.meta.env.VITE_ADMIN_EMAIL as string | undefined;
+    const unsubscribe = onAuthStateChanged(
+      auth,
+      (fbUser) => {
+        // If an admin email is configured, restrict access to that email only.
+        if (fbUser) {
+          if (allowedEmail && fbUser.email !== allowedEmail) {
+            setUser(null);
+            setError(new Error('Este usuario no está autorizado. Verifica VITE_ADMIN_EMAIL.'));
+          } else {
+            setUser(fbUser);
+            setError(null);
+          }
+        } else {
+          setUser(null);
+        }
+        setIsLoading(false);
+      },
+      (err) => {
+        setError(err);
+        setIsLoading(false);
       }
-      setIsLoading(false);
-    }, (err) => {
-      setError(err);
-      setIsLoading(false);
-    });
+    );
 
     return () => unsubscribe();
   }, []);
@@ -31,9 +43,15 @@ export const AuthProvider = ({ children }) => {
     try {
       const persistence = remember ? browserLocalPersistence : browserSessionPersistence;
       await setPersistence(auth, persistence);
-      await signInWithEmailAndPassword(auth, email, password);
+      const cred = await signInWithEmailAndPassword(auth, email, password);
+      const allowedEmail = import.meta.env.VITE_ADMIN_EMAIL as string | undefined;
+      if (allowedEmail && cred.user?.email !== allowedEmail) {
+        // Sign out immediately if not authorized to avoid a flicker
+        await firebaseSignOut(auth);
+        throw new Error('Usuario no autorizado para acceder.');
+      }
     } catch (err) {
-      setError(err);
+      setError(err as Error);
     } finally {
       setIsLoading(false);
     }
