@@ -52,6 +52,8 @@ export interface ShareGetResult {
   cleanup?: any;
 }
 
+import { functionsUrl } from '@/utils/backend';
+
 /**
  * Export SDK for handling conversation exports
  */
@@ -60,7 +62,7 @@ export class ExportSDK {
   private authToken?: string;
 
   constructor(authToken?: string) {
-    this.baseUrl = ``; // Removed Supabase URL
+    this.baseUrl = functionsUrl('exportHandler');
     this.authToken = authToken;
   }
 
@@ -97,11 +99,21 @@ export class ExportSDK {
    */
   private async export(request: ExportRequest): Promise<ExportResult> {
     console.log('[Export SDK] export called with:', request);
-    // Return mock data
-    return {
-      filename: `export.${request.format}`,
-      content: `# Mock Export\n\nThis is a mock export in ${request.format} format.`
-    };
+
+    const response = await fetch(this.baseUrl, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${this.authToken}`
+      },
+      body: JSON.stringify(request),
+    });
+
+    if (!response.ok) {
+      throw new Error(`[Export SDK] API error: ${response.statusText}`);
+    }
+
+    return response.json();
   }
 
   /**

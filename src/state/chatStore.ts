@@ -3,6 +3,8 @@
 
 import { create } from 'zustand';
 import { immer } from 'zustand/middleware/immer';
+import { brandGuardSDK } from '../sdk/guard';
+import { useBrandKit } from '../contexts/BrandKitContext';
 import type { 
   Settings, 
   Msg, 
@@ -193,7 +195,7 @@ export const useChatStore = create<ChatState>()(
       }),
 
     // Message actions
-    pushUserMessage: (content: string, attachments?: any[]) => 
+    pushUserMessage: (content: string, attachments?: any[]) =>
       set((state) => {
         const userMessage: Msg = {
           id: generateId(),
@@ -204,6 +206,22 @@ export const useChatStore = create<ChatState>()(
         };
         state.messages.push(userMessage);
         state.composerText = ''; // Clear composer after sending
+
+        // Perform Brand Guard check
+        if (state.settings.brandGuard) {
+          const { brandKit } = useBrandKit.getState();
+          if (brandKit) {
+            brandGuardSDK.checkText({
+              text: content,
+              role: 'user',
+              brand: brandGuardSDK.convertBrandKitToBrandGuard(brandKit),
+            }).then(response => {
+              console.log('[ChatStore] Brand Guard check response:', response);
+            }).catch(error => {
+              console.error('[ChatStore] Brand Guard check failed:', error);
+            });
+          }
+        }
       }),
 
     upsertAssistantMessage: (content: string, messageId?: string) => 

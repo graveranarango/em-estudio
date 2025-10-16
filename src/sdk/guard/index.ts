@@ -1,3 +1,4 @@
+import { functionsUrl } from '@/utils/backend';
 import type { GuardInput, GuardCheckResponse, BrandKit } from './types';
 
 export class BrandGuardSDK {
@@ -5,7 +6,7 @@ export class BrandGuardSDK {
   private headers: Record<string, string>;
 
   constructor() {
-    this.baseUrl = ``; // Removed Supabase URL
+    this.baseUrl = functionsUrl('guardCheck');
     this.headers = {
       'Content-Type': 'application/json',
     };
@@ -16,14 +17,18 @@ export class BrandGuardSDK {
    */
   async checkText(input: GuardInput): Promise<GuardCheckResponse> {
     console.log('[Brand Guard SDK] checkText called with:', input);
-    // Return mock data
-    return {
-      report: {
-        score: 85,
-        findings: [],
-        disclaimerNeeded: false
-      }
-    };
+
+    const response = await fetch(this.baseUrl, {
+      method: 'POST',
+      headers: this.headers,
+      body: JSON.stringify(input),
+    });
+
+    if (!response.ok) {
+      throw new Error(`[Brand Guard SDK] API error: ${response.statusText}`);
+    }
+
+    return response.json();
   }
 
   /**
