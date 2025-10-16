@@ -40,6 +40,20 @@ export const subscribeToGroups = (userId: string, callback: (groups: any[]) => v
   return unsubscribe;
 };
 
+export const updateMessageContent = async (
+  userId: string,
+  threadId: string,
+  messageId: string,
+  newContent: string
+): Promise<void> => {
+  const messageRef = doc(db, 'users', userId, 'threads', threadId, 'messages', messageId);
+  await updateDoc(messageRef, {
+    content: newContent,
+    // Optionally, clear the report after applying suggestion
+    brandGuardReport: null,
+  });
+};
+
 export const subscribeToThreads = (userId: string, groupId: string, callback: (threads: any[]) => void) => {
   const threadsRef = collection(db, 'users', userId, 'groups', groupId, 'threads');
   const q = query(threadsRef, orderBy('createdAt', 'asc'));
