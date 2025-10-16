@@ -2,6 +2,7 @@ import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-d
 import { AuthProvider, useAuth } from './contexts/AuthContext';
 import { AIContentStudio } from './components/AIContentStudio';
 import { LoginPage } from './views/LoginPage';
+import { DebugMessagesPage } from './views/DebugMessagesPage';
 
 function ProtectedRoute({ children }) {
   const { user, isLoading } = useAuth();
@@ -28,6 +29,14 @@ export default function App() {
       <Router>
         <Routes>
           <Route path="/login" element={<LoginPage />} />
+          <Route
+            path="/debug/messages"
+            element={
+              <ProtectedRoute>
+                <DebugMessagesPage />
+              </ProtectedRoute>
+            }
+          />
           <Route
             path="/*" // Protect all other routes
             element={
