@@ -1,0 +1,1 @@
+const n=import.meta?.env?.VITE_FUNCTIONS_BASE_URL||"https://em-estudio.web.app/make-server-ecf7df64",r=import.meta?.env?.VITE_FUNCTIONS_TOKEN||"firebase-public";function o(e){const t=n.replace(/\/$/,""),s=e.startsWith("/")?e:`/${e}`;return`${t}${s}`}export{n as FUNCTIONS_BASE_URL,r as FUNCTIONS_TOKEN,o as functionsUrl};

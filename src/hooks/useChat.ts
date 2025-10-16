@@ -1,13 +1,13 @@
 import { useCallback, useRef } from 'react';
-import { ChatSDK, stream, abort, regenerate, signUpload, saveThread } from '../src/sdk/chat';
-import { useChatStore, useChatSelectors } from '../src/state/chatStore';
+import { ChatSDK, stream, abort, regenerate, signUpload, saveThread } from '@/sdk/chat';
+import { useChatStore, useChatSelectors } from '@/state/chatStore';
 import type { 
   Settings, 
   Tool, 
   ChatRequest,
   SSEEvent,
   Msg
-} from '../src/sdk/chat/contracts';
+} from '@/sdk/chat/contracts';
 
 // Hook return type
 export interface UseChatReturn {
@@ -42,6 +42,7 @@ export interface UseChatReturn {
 }
 
 export function useChat(jwt?: string): UseChatReturn {
+  console.log('useChat hook called');
   // Get state and actions from store
   const {
     threadId,

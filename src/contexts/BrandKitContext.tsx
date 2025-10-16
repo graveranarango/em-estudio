@@ -371,17 +371,17 @@ export function BrandKitProvider({ children }: BrandKitProviderProps) {
       const formData = new FormData();
       formData.append('file', file);
       
-      // Call the backend to analyze with Gemini
+      // Call the backend to analyze with Gemini (Firebase Functions / generic backend)
       console.log('Calling backend analysis service...');
-      const { projectId, publicAnonKey } = await import('../utils/supabase/info');
+      const { functionsUrl, FUNCTIONS_TOKEN } = await import('../utils/backend');
       
       const controller = new AbortController();
       const timeoutId = setTimeout(() => controller.abort(), 60000); // 60 second timeout
       
-      const response = await fetch(`https://${projectId}.supabase.co/functions/v1/make-server-ecf7df64/analyze-brand-manual`, {
+      const response = await fetch(functionsUrl('/analyze-brand-manual'), {
         method: 'POST',
         headers: {
-          'Authorization': `Bearer ${publicAnonKey}`
+          'Authorization': `Bearer ${FUNCTIONS_TOKEN}`
         },
         body: formData,
         signal: controller.signal
@@ -459,11 +459,11 @@ export function BrandKitProvider({ children }: BrandKitProviderProps) {
   // Add saveBrandKit method for persistent storage
   const saveBrandKit = async (brandKitData: BrandKitData) => {
     try {
-      const { projectId, publicAnonKey } = await import('../utils/supabase/info');
-      const response = await fetch(`https://${projectId}.supabase.co/functions/v1/make-server-ecf7df64/save-brandkit`, {
+      const { functionsUrl, FUNCTIONS_TOKEN } = await import('../utils/backend');
+      const response = await fetch(functionsUrl('/save-brandkit'), {
         method: 'POST',
         headers: {
-          'Authorization': `Bearer ${publicAnonKey}`,
+          'Authorization': `Bearer ${FUNCTIONS_TOKEN}`,
           'Content-Type': 'application/json'
         },
         body: JSON.stringify(brandKitData)

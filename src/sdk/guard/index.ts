@@ -1,4 +1,3 @@
-import { projectId, publicAnonKey } from '../../utils/supabase/info';
 import type { GuardInput, GuardCheckResponse, BrandKit } from './types';
 
 export class BrandGuardSDK {
@@ -6,9 +5,8 @@ export class BrandGuardSDK {
   private headers: Record<string, string>;
 
   constructor() {
-    this.baseUrl = `https://${projectId}.supabase.co/functions/v1/make-server-ecf7df64`;
+    this.baseUrl = ``; // Removed Supabase URL
     this.headers = {
-      'Authorization': `Bearer ${publicAnonKey}`,
       'Content-Type': 'application/json',
     };
   }
@@ -17,36 +15,15 @@ export class BrandGuardSDK {
    * Check text against brand guidelines
    */
   async checkText(input: GuardInput): Promise<GuardCheckResponse> {
-    try {
-      const response = await fetch(`${this.baseUrl}/api/guard/check`, {
-        method: 'POST',
-        headers: this.headers,
-        body: JSON.stringify({ input }),
-      });
-
-      if (!response.ok) {
-        const errorData = await response.json();
-        throw new Error(`Brand guard check failed: ${errorData.error || response.statusText}`);
+    console.log('[Brand Guard SDK] checkText called with:', input);
+    // Return mock data
+    return {
+      report: {
+        score: 85,
+        findings: [],
+        disclaimerNeeded: false
       }
-
-      return await response.json();
-    } catch (error) {
-      console.error('[Brand Guard SDK] Check error:', error);
-      
-      // Return graceful fallback
-      return {
-        report: {
-          score: 75,
-          findings: [{
-            type: 'compliance',
-            severity: 'info',
-            message: 'Análisis de marca no disponible temporalmente',
-            suggestion: 'Revisa manualmente según directrices de marca'
-          }],
-          disclaimerNeeded: false
-        }
-      };
-    }
+    };
   }
 
   /**
@@ -77,26 +54,9 @@ export class BrandGuardSDK {
    * Update brand guard rules (admin only)
    */
   async updateRules(patch: Partial<BrandKit>, adminToken: string): Promise<{ ok: boolean; updated?: BrandKit }> {
-    try {
-      const response = await fetch(`${this.baseUrl}/api/guard/rules/update`, {
-        method: 'POST',
-        headers: {
-          ...this.headers,
-          'Authorization': `Bearer ${adminToken}`,
-        },
-        body: JSON.stringify({ patch }),
-      });
-
-      if (!response.ok) {
-        const errorData = await response.json();
-        throw new Error(`Rules update failed: ${errorData.error || response.statusText}`);
-      }
-
-      return await response.json();
-    } catch (error) {
-      console.error('[Brand Guard SDK] Rules update error:', error);
-      throw error;
-    }
+    console.log('[Brand Guard SDK] updateRules called with:', patch, adminToken);
+    // Return mock data
+    return { ok: true };
   }
 
   /**

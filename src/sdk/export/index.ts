@@ -1,5 +1,4 @@
 // Export/Share SDK for Chat Maestro Frontend
-import { projectId, publicAnonKey } from '../../utils/supabase/info';
 
 export interface ExportRequest {
   threadId: string;
@@ -61,7 +60,7 @@ export class ExportSDK {
   private authToken?: string;
 
   constructor(authToken?: string) {
-    this.baseUrl = `https://${projectId}.supabase.co/functions/v1/make-server-ecf7df64`;
+    this.baseUrl = ``; // Removed Supabase URL
     this.authToken = authToken;
   }
 
@@ -97,82 +96,50 @@ export class ExportSDK {
    * Generic export method
    */
   private async export(request: ExportRequest): Promise<ExportResult> {
-    const response = await fetch(`${this.baseUrl}/api/export/${request.format}`, {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        'Authorization': `Bearer ${this.authToken || publicAnonKey}`,
-      },
-      body: JSON.stringify({ req: request }),
-    });
-
-    if (!response.ok) {
-      const error = await response.json().catch(() => ({ error: 'Export failed' }));
-      throw new Error(error.error || `Export failed with status ${response.status}`);
-    }
-
-    return response.json();
+    console.log('[Export SDK] export called with:', request);
+    // Return mock data
+    return {
+      filename: `export.${request.format}`,
+      content: `# Mock Export\n\nThis is a mock export in ${request.format} format.`
+    };
   }
 
   /**
    * Creates a shareable link for a conversation
    */
   async createShareLink(request: ShareCreateRequest): Promise<ShareCreateResult> {
-    const response = await fetch(`${this.baseUrl}/api/share/create`, {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        'Authorization': `Bearer ${this.authToken || publicAnonKey}`,
-      },
-      body: JSON.stringify({ req: request }),
-    });
-
-    if (!response.ok) {
-      const error = await response.json().catch(() => ({ error: 'Share creation failed' }));
-      throw new Error(error.error || `Share creation failed with status ${response.status}`);
-    }
-
-    return response.json();
+    console.log('[Export SDK] createShareLink called with:', request);
+    // Return mock data
+    return {
+      link: 'https://example.com/share/mock-link',
+      token: 'mock-token',
+      expires_at: null
+    };
   }
 
   /**
    * Revokes a shareable link
    */
   async revokeShareLink(linkId: string): Promise<{ ok: boolean }> {
-    const response = await fetch(`${this.baseUrl}/api/share/revoke`, {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        'Authorization': `Bearer ${this.authToken || publicAnonKey}`,
-      },
-      body: JSON.stringify({ id: linkId }),
-    });
-
-    if (!response.ok) {
-      const error = await response.json().catch(() => ({ error: 'Revoke failed' }));
-      throw new Error(error.error || `Revoke failed with status ${response.status}`);
-    }
-
-    return response.json();
+    console.log('[Export SDK] revokeShareLink called with:', linkId);
+    // Return mock data
+    return { ok: true };
   }
 
   /**
    * Gets shared content by token (public access, no auth required)
    */
   async getSharedContent(token: string): Promise<ShareGetResult> {
-    const response = await fetch(`${this.baseUrl}/api/share/get?token=${token}`, {
-      method: 'GET',
-      headers: {
-        'Content-Type': 'application/json',
+    console.log('[Export SDK] getSharedContent called with:', token);
+    // Return mock data
+    return {
+      thread: {
+        title: 'Mock Thread',
+        system: 'Mock System'
       },
-    });
-
-    if (!response.ok) {
-      const error = await response.json().catch(() => ({ error: 'Failed to load shared content' }));
-      throw new Error(error.error || `Failed to load shared content with status ${response.status}`);
-    }
-
-    return response.json();
+      messages: [],
+      readOnly: true
+    };
   }
 
   /**

@@ -64,12 +64,12 @@ export function BrandKitUploader({ onUploadComplete }: BrandKitUploaderProps) {
       
       setProgress(30);
       
-      // Llamar al backend para análisis con Gemini
-      const { projectId, publicAnonKey } = await import('../../utils/supabase/info');
-      const response = await fetch(`https://${projectId}.supabase.co/functions/v1/make-server-ecf7df64/analyze-brand-manual`, {
+      // Llamar al backend para análisis con Gemini (Firebase Functions / genérico)
+      const { functionsUrl, FUNCTIONS_TOKEN } = await import('../../utils/backend');
+      const response = await fetch(functionsUrl('/analyze-brand-manual'), {
         method: 'POST',
         headers: {
-          'Authorization': `Bearer ${publicAnonKey}`
+          'Authorization': `Bearer ${FUNCTIONS_TOKEN}`
         },
         body: formData
       });

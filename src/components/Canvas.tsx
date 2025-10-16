@@ -12,7 +12,7 @@ import AssetsLibrary from "./assets/AssetsLibrary";
 import AnalyticsModule from "./analytics/AnalyticsModule";
 import AutomationModule from "./automation/AutomationModule";
 import CompetitionModule from "./competition/CompetitionModule";
-import { useChatStore } from "../src/state/chatStore";
+import { useChatStore } from "@/state/chatStore";
 
 interface CanvasProps {
   activeModule: string;

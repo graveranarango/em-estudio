@@ -18,7 +18,6 @@ export default defineConfig({
         '**/*.d.ts',
         '**/*.config.*',
         'scripts/',
-        'supabase/migrations/',
         '.next/',
         'reports/'
       ]

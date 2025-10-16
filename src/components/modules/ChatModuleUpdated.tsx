@@ -87,7 +87,7 @@ export function ChatModuleUpdated() {
     checkMobile();
     window.addEventListener('resize', checkMobile);
     return () => window.removeEventListener('resize', checkMobile);
-  }, [chat]);
+  }, [chat.setRightPanelOpen]);
 
   // Auto-scroll to bottom when new messages arrive
   useEffect(() => {
