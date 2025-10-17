@@ -10,6 +10,7 @@ const video_routes_1 = require("./routes/video.routes");
 const podcast_routes_1 = require("./routes/podcast.routes");
 const brandkit_routes_1 = require("./routes/brandkit.routes");
 const competition_routes_1 = require("./routes/competition.routes");
+const google_routes_1 = require("./routes/google.routes");
 const app = express();
 app.use(cors({ origin: true }));
 app.use('/threads', threads_routes_1.default);
@@ -18,5 +19,6 @@ app.use('/video', video_routes_1.default);
 app.use('/podcast', podcast_routes_1.default);
 app.use('/brandkit', brandkit_routes_1.default);
 app.use('/competition', competition_routes_1.default);
+app.use('/google', google_routes_1.default);
 exports.apiV1 = functions.https.onRequest(app);
 //# sourceMappingURL=index.js.map
