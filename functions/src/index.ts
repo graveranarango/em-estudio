@@ -118,3 +118,61 @@ export const onUserMessageCreated = functions.firestore
       });
     }
   });
+
+export const generatePost = functions.https.onCall(async (data, context) => {
+  // 1. Ensure the user is authenticated
+  if (!context.auth) {
+    throw new functions.https.HttpsError('unauthenticated', 'The function must be called while authenticated.');
+  }
+
+  const { threadId } = data;
+  const { uid } = context.auth;
+
+  if (!threadId) {
+    throw new functions.https.HttpsError('invalid-argument', 'The function must be called with a "threadId".');
+  }
+
+  try {
+    // 2. Retrieve conversation messages from Firestore
+    const messagesRef = admin.firestore().collection('users').doc(uid).collection('threads').doc(threadId).collection('messages');
+    const messagesSnap = await messagesRef.orderBy('createdAt', 'asc').get();
+    const conversation = messagesSnap.docs.map(doc => doc.data().content).join('\n');
+
+    if (conversation.length === 0) {
+      throw new functions.https.HttpsError('not-found', 'No messages found in the specified thread.');
+    }
+
+    // 3. Call OpenAI API to generate content
+    const completion = await openai.chat.completions.create({
+      model: OPENAI_MODEL,
+      messages: [
+        {
+          role: 'system',
+          content: `Basado en la siguiente conversación, genera un post para un blog. El post debe tener un título y un cuerpo. Responde únicamente con un objeto JSON con el formato: {"title": "título del post", "body": "cuerpo del post"}. No incluyas nada más en tu respuesta.`,
+        },
+        {
+          role: 'user',
+          content: conversation,
+        },
+      ],
+      response_format: { type: 'json_object' },
+    });
+
+    const responseContent = completion.choices[0]?.message?.content;
+
+    if (!responseContent) {
+      throw new functions.https.HttpsError('internal', 'Failed to get a valid response from OpenAI.');
+    }
+
+    // 4. Parse the JSON response and return it
+    const parsedContent = JSON.parse(responseContent);
+    return parsedContent;
+
+  } catch (error) {
+    functions.logger.error('Error generating post from conversation:', error);
+    if (error instanceof functions.https.HttpsError) {
+      throw error;
+    }
+    throw new functions.https.HttpsError('internal', 'An unexpected error occurred while generating the post.');
+  }
+});

@@ -5,9 +5,12 @@ import { Badge } from "../ui/badge";
 import { BrandKitAlert } from "../common/BrandKitAlert";
 import { PostCreationWorkflow } from "./PostCreationWorkflow";
 import { PostsModuleMobile } from "./PostsModuleMobile";
+import { getFunctions, httpsCallable } from "firebase/functions";
+import { getFunctions, httpsCallable } from "firebase/functions";
 import { usePostProject } from "../../contexts/PostProjectContext";
 import { useBrandKit } from "../../contexts/BrandKitContext";
 import { useIsMobile } from "../ui/use-mobile";
+import { useUserThreads } from "../../hooks/useUserThreads";
 import { 
   FileText, 
   Layers, 
@@ -15,16 +18,27 @@ import {
   FolderOpen,
   Sparkles,
   Clock,
-  CheckCircle
+  CheckCircle,
+  MessageSquare,
+  Loader2
 } from "lucide-react";
+import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetDescription, SheetFooter } from "../ui/sheet";
+import { formatDistanceToNow } from 'date-fns';
+import { es } from 'date-fns/locale';
+
 
 function PostsCreatorContent() {
   const { hasBrandKit } = useBrandKit();
-  const { currentProject, createNewProject } = usePostProject();
+  const { currentProject, createNewProject, updateProject, updateCopywriting } = usePostProject();
   const isMobile = useIsMobile();
   const [showWorkflow, setShowWorkflow] = useState(!!currentProject);
   const [showMobileView, setShowMobileView] = useState(false);
   const [forceMobileDemo, setForceMobileDemo] = useState(false);
+  const [showConversationSelector, setShowConversationSelector] = useState(false);
+  const [isGenerating, setIsGenerating] = useState(false);
+  const [generationError, setGenerationError] = useState<string | null>(null);
+  const { threads, isLoading: isLoadingThreads, error: threadsError } = useUserThreads();
+
 
   const handleCreateProject = (type: 'post' | 'carousel') => {
     createNewProject(type);
@@ -38,6 +52,37 @@ function PostsCreatorContent() {
   const handleOpenExistingProject = () => {
     // TODO: Implementar selector de proyectos existentes
     console.log('Opening existing project selector');
+  };
+
+  const handleSelectConversation = async (threadId: string) => {
+    setIsGenerating(true);
+    setGenerationError(null);
+    setShowConversationSelector(false);
+
+    try {
+      const functions = getFunctions();
+      const generatePost = httpsCallable(functions, 'generatePost');
+      const result = await generatePost({ threadId });
+
+      const { title, body } = result.data as { title: string; body: string };
+
+      // Create a new project and immediately populate it
+      createNewProject('post');
+
+      // We need to use a timeout to allow the state to update with the new project
+      setTimeout(() => {
+        updateProject({ title });
+        updateCopywriting({ caption: body, aiGenerated: true });
+        setShowWorkflow(true);
+      }, 0);
+
+    } catch (error) {
+      console.error("Error generating post from conversation:", error);
+      setGenerationError("No se pudo generar el post. Inténtalo de nuevo más tarde.");
+      // Optionally, re-open the selector or show a toast
+    } finally {
+      setIsGenerating(false);
+    }
   };
 
   const handleBackFromMobile = () => {
@@ -69,6 +114,19 @@ function PostsCreatorContent() {
             Flujo completo de creación desde briefing hasta publicación programada, con tu BrandKit aplicado automáticamente en cada paso
           </p>
           
+          {isGenerating && (
+            <div className="flex items-center justify-center gap-2 mt-4">
+              <div className="w-4 h-4 border-2 border-blue-500 border-t-transparent rounded-full animate-spin"></div>
+              <p className="text-blue-600">Generando post con IA, por favor espera...</p>
+            </div>
+          )}
+
+          {generationError && (
+            <div className="my-4 p-3 bg-red-100 border border-red-300 text-red-800 rounded-lg text-center">
+              {generationError}
+            </div>
+          )}
+
           {/* Mobile Demo Toggle */}
           <div className="flex items-center justify-center gap-2 mt-4">
             <Button 
@@ -84,6 +142,31 @@ function PostsCreatorContent() {
 
         {/* BrandKit Status */}
         <BrandKitAlert />
+
+        {/* Generate from Conversation */}
+        <div className="my-8 text-center">
+          <Button
+            size="lg"
+            className="bg-gradient-to-r from-teal-400 to-blue-500 text-white shadow-lg hover:shadow-xl transform hover:scale-105 transition-all duration-300"
+            onClick={() => setShowConversationSelector(true)}
+          >
+            <Sparkles className="w-5 h-5 mr-3" />
+            Generar Post desde Conversación
+          </Button>
+          <p className="text-sm text-muted-foreground mt-2">Usa la IA para convertir un chat en un post completo.</p>
+        </div>
+
+        <div className="relative my-6">
+          <div className="absolute inset-0 flex items-center" aria-hidden="true">
+            <div className="w-full border-t border-gray-300" />
+          </div>
+          <div className="relative flex justify-center">
+            <span className="bg-background px-4 text-sm text-muted-foreground">
+              O comienza un proyecto nuevo
+            </span>
+          </div>
+        </div>
+
 
         {/* Project Creation Cards */}
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
