@@ -30,22 +30,9 @@ export interface MessageMeta {
   googleIaRequest?: any;
 }
 
-export interface Thread {
-  id: string;
-  title: string;
-  updatedAt: {
-    seconds: number;
-    nanoseconds: number;
-  } | Date; // Firestore timestamp object or Date object
-  // other fields from the document can be added here
-  lastMessage?: string;
-  messageCount?: number;
-}
-
-
 export interface ThreadSummary {
   id: string;
-  title:string;
+  title: string;
   lastMessage?: string;
   updatedAt: string;
   messageCount: number;

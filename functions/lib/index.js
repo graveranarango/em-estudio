@@ -1,7 +1,7 @@
 "use strict";
 var _a, _b, _c;
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.generatePost = exports.onUserMessageCreated = void 0;
+exports.generateVideoScript = exports.onUserMessageCreated = void 0;
 const functions = require("firebase-functions");
 const admin = require("firebase-admin");
 const openai_1 = require("openai");
@@ -104,36 +104,28 @@ exports.onUserMessageCreated = functions.firestore
         });
     }
 });
-exports.generatePost = functions.https.onCall(async (data, context) => {
+exports.generateVideoScript = functions.https.onCall(async (data, context) => {
     var _a, _b;
     // 1. Ensure the user is authenticated
     if (!context.auth) {
         throw new functions.https.HttpsError('unauthenticated', 'The function must be called while authenticated.');
     }
-    const { threadId } = data;
-    const { uid } = context.auth;
-    if (!threadId) {
-        throw new functions.https.HttpsError('invalid-argument', 'The function must be called with a "threadId".');
+    const { prompt } = data;
+    if (!prompt) {
+        throw new functions.https.HttpsError('invalid-argument', 'The function must be called with a "prompt".');
     }
     try {
-        // 2. Retrieve conversation messages from Firestore
-        const messagesRef = admin.firestore().collection('users').doc(uid).collection('threads').doc(threadId).collection('messages');
-        const messagesSnap = await messagesRef.orderBy('createdAt', 'asc').get();
-        const conversation = messagesSnap.docs.map(doc => doc.data().content).join('\n');
-        if (conversation.length === 0) {
-            throw new functions.https.HttpsError('not-found', 'No messages found in the specified thread.');
-        }
-        // 3. Call OpenAI API to generate content
+        // 2. Call OpenAI API to generate video script
         const completion = await openai.chat.completions.create({
             model: OPENAI_MODEL,
             messages: [
                 {
                     role: 'system',
-                    content: `Basado en la siguiente conversación, genera un post para un blog. El post debe tener un título y un cuerpo. Responde únicamente con un objeto JSON con el formato: {"title": "título del post", "body": "cuerpo del post"}. No incluyas nada más en tu respuesta.`,
+                    content: `Eres un experto guionista de videos cortos para redes sociales. Basado en el siguiente prompt, genera un guion de video. El guion debe tener un título, una lista de escenas (cada una con una descripción visual y una narración), y una sugerencia de audio. Responde únicamente con un objeto JSON con el formato: {"title": "título del video", "scenes": [{"visual": "descripción de la escena 1", "voiceover": "narración de la escena 1"}], "audioSuggestion": "sugerencia de música o sonido"}. No incluyas nada más en tu respuesta.`,
                 },
                 {
                     role: 'user',
-                    content: conversation,
+                    content: prompt,
                 },
             ],
             response_format: { type: 'json_object' },
@@ -142,16 +134,16 @@ exports.generatePost = functions.https.onCall(async (data, context) => {
         if (!responseContent) {
             throw new functions.https.HttpsError('internal', 'Failed to get a valid response from OpenAI.');
         }
-        // 4. Parse the JSON response and return it
+        // 3. Parse the JSON response and return it
         const parsedContent = JSON.parse(responseContent);
         return parsedContent;
     }
     catch (error) {
-        functions.logger.error('Error generating post from conversation:', error);
+        functions.logger.error('Error generating video script:', error);
         if (error instanceof functions.https.HttpsError) {
             throw error;
         }
-        throw new functions.https.HttpsError('internal', 'An unexpected error occurred while generating the post.');
+        throw new functions.https.HttpsError('internal', 'An unexpected error occurred while generating the video script.');
     }
 });
 //# sourceMappingURL=index.js.map
