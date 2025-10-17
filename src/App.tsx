@@ -2,6 +2,7 @@ import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-d
 import { AuthProvider, useAuth } from './contexts/AuthContext';
 import { AIContentStudio } from './components/AIContentStudio';
 import { LoginPage } from './views/LoginPage';
+import { Dashboard } from './views/Dashboard'; // Import the new Dashboard
 
 function ProtectedRoute({ children }) {
   const { user, isLoading } = useAuth();
@@ -29,7 +30,15 @@ export default function App() {
         <Routes>
           <Route path="/login" element={<LoginPage />} />
           <Route
-            path="/*" // Protect all other routes
+            path="/"
+            element={
+              <ProtectedRoute>
+                <Dashboard />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/studio/*" // All modules will now be under /studio
             element={
               <ProtectedRoute>
                 <AIContentStudio />

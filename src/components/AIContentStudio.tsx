@@ -1,6 +1,7 @@
-import React, { useState, Suspense } from 'react';
+import React, { useState, Suspense, useEffect } from 'react';
 import { Button } from './ui/button';
-// Mock components for demonstration
+import { Routes, Route, useNavigate, useLocation } from 'react-router-dom';
+
 const Sidebar = ({ onModuleChange }) => (
   <div className="w-64 bg-gray-100 p-4">
     <h2 className="font-bold mb-4">Módulos</h2>
@@ -18,7 +19,6 @@ const Sidebar = ({ onModuleChange }) => (
 );
 const Header = () => <div className="h-16 bg-gray-200"></div>;
 
-// Lazy load modules
 const ChatModuleUpdated = React.lazy(() => import('./modules/ChatModuleUpdated'));
 const PostsCreatorModule = React.lazy(() => import('./posts/PostsCreatorModule'));
 const VideosCreatorModule = React.lazy(() => import('./videos/VideosCreatorModule'));
@@ -36,75 +36,40 @@ function LoadingSpinner() {
   );
 }
 
-const renderModule = (activeModule: string) => {
-  switch (activeModule) {
-    case 'chat':
-      return (
+const StudioContent = () => {
+    return (
         <Suspense fallback={<LoadingSpinner />}>
-          <ChatModuleUpdated />
+            <Routes>
+                <Route path="chat" element={<ChatModuleUpdated />} />
+                <Route path="posts" element={<PostsCreatorModule />} />
+                <Route path="videos" element={<VideosCreatorModule />} />
+                <Route path="podcasts" element={<PodcastsCreatorModule />} />
+                <Route path="calendar" element={<CalendarModule />} />
+                <Route path="brandkit" element={<BrandKitModule />} />
+                <Route path="analytics" element={<AnalyticsModule />} />
+                <Route path="competition" element={<CompetitionModule />} />
+                <Route index element={<ChatModuleUpdated />} />
+            </Routes>
         </Suspense>
-      );
-    case 'posts':
-      return (
-        <Suspense fallback={<LoadingSpinner />}>
-          <PostsCreatorModule />
-        </Suspense>
-      );
-    case 'videos':
-      return (
-        <Suspense fallback={<LoadingSpinner />}>
-          <VideosCreatorModule />
-        </Suspense>
-      );
-    case 'podcasts':
-      return (
-        <Suspense fallback={<LoadingSpinner />}>
-          <PodcastsCreatorModule />
-        </Suspense>
-      );
-    case 'calendar':
-      return (
-        <Suspense fallback={<LoadingSpinner />}>
-          <CalendarModule />
-        </Suspense>
-      );
-    case 'brandkit':
-      return (
-        <Suspense fallback={<LoadingSpinner />}>
-          <BrandKitModule />
-        </Suspense>
-      );
-    case 'analytics':
-      return (
-        <Suspense fallback={<LoadingSpinner />}>
-          <AnalyticsModule />
-        </Suspense>
-      );
-    case 'competition':
-      return (
-        <Suspense fallback={<LoadingSpinner />}>
-          <CompetitionModule />
-        </Suspense>
-      );
-    default:
-      return (
-        <Suspense fallback={<LoadingSpinner />}>
-          <ChatModuleUpdated />
-        </Suspense>
-      );
-  }
-};
+    )
+}
+
 
 export function AIContentStudio() {
-  const [activeModule, setActiveModule] = useState('chat');
+  const navigate = useNavigate();
+  const location = useLocation();
+
+  const handleModuleChange = (module: string) => {
+    navigate(`/studio/${module}`);
+  };
 
   return (
     <div className="flex min-h-screen">
-      <Sidebar onModuleChange={setActiveModule} />
+      <Sidebar onModuleChange={handleModuleChange} />
       <div className="flex-1 flex flex-col">
         <Header />
         <main className="flex-1 p-4">
-          {renderModule(activeModule)}
+          <StudioContent />
         </main>
       </div>
     </div>

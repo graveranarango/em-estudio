@@ -9,6 +9,7 @@ import brandkitRoutes from './routes/brandkit.routes';
 import competitionRoutes from './routes/competition.routes';
 import googleRoutes from './routes/google.routes';
 import calendarRoutes from './routes/calendar.routes';
+import dashboardRoutes from './routes/dashboard.routes';
 
 const app = express();
 app.use(cors({ origin: true }));
@@ -21,5 +22,6 @@ app.use('/brandkit', brandkitRoutes);
 app.use('/competition', competitionRoutes);
 app.use('/google', googleRoutes);
 app.use('/calendar', calendarRoutes);
+app.use('/dashboard', dashboardRoutes);
 
 export const apiV1 = functions.https.onRequest(app);
