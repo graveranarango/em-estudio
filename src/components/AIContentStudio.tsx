@@ -8,6 +8,7 @@ const Sidebar = ({ onModuleChange }) => (
       <Button onClick={() => onModuleChange('chat')}>Chat</Button>
       <Button onClick={() => onModuleChange('posts')}>Posts</Button>
       <Button onClick={() => onModuleChange('videos')}>Videos</Button>
+      <Button onClick={() => onModuleChange('podcasts')}>Podcasts</Button>
       <Button onClick={() => onModuleChange('calendar')}>Calendario</Button>
     </div>
   </div>
@@ -18,6 +19,7 @@ const ChatModuleUpdated = () => <div>Chat Module</div>;
 // Lazy load modules
 const PostsCreatorModule = React.lazy(() => import('./posts/PostsCreatorModule'));
 const VideosCreatorModule = React.lazy(() => import('./videos/VideosCreatorModule'));
+const PodcastsCreatorModule = React.lazy(() => import('./podcasts/PodcastsCreatorModule'));
 const CalendarModule = React.lazy(() => import('./calendar/CalendarModule'));
 
 function LoadingSpinner() {
@@ -42,6 +44,12 @@ const renderModule = (activeModule: string) => {
       return (
         <Suspense fallback={<LoadingSpinner />}>
           <VideosCreatorModule />
+        </Suspense>
+      );
+    case 'podcasts':
+      return (
+        <Suspense fallback={<LoadingSpinner />}>
+          <PodcastsCreatorModule />
         </Suspense>
       );
     case 'calendar':
