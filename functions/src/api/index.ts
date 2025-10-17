@@ -8,6 +8,7 @@ import podcastRoutes from './routes/podcast.routes';
 import brandkitRoutes from './routes/brandkit.routes';
 import competitionRoutes from './routes/competition.routes';
 import googleRoutes from './routes/google.routes';
+import calendarRoutes from './routes/calendar.routes';
 
 const app = express();
 app.use(cors({ origin: true }));
@@ -19,5 +20,6 @@ app.use('/podcast', podcastRoutes);
 app.use('/brandkit', brandkitRoutes);
 app.use('/competition', competitionRoutes);
 app.use('/google', googleRoutes);
+app.use('/calendar', calendarRoutes);
 
 export const apiV1 = functions.https.onRequest(app);
