@@ -24,27 +24,29 @@ function ProtectedRoute({ children }) {
 }
 
 export default function App() {
+  const OPEN_ACCESS = import.meta.env.VITE_OPEN_ACCESS === 'true';
   return (
     <AuthProvider>
       <Router>
         <Routes>
-          <Route path="/login" element={<LoginPage />} />
+          {!OPEN_ACCESS && <Route path="/login" element={<LoginPage />} />}
           <Route
             path="/debug/messages"
-            element={
+            element={OPEN_ACCESS ? <DebugMessagesPage /> : (
               <ProtectedRoute>
                 <DebugMessagesPage />
               </ProtectedRoute>
-            }
+            )}
           />
           <Route
-            path="/*" // Protect all other routes
-            element={
+            path="/*"
+            element={OPEN_ACCESS ? <AIContentStudio /> : (
               <ProtectedRoute>
                 <AIContentStudio />
               </ProtectedRoute>
-            }
+            )}
           />
+          {OPEN_ACCESS && <Route path="/login" element={<Navigate to="/" replace />} />}
         </Routes>
       </Router>
     </AuthProvider>

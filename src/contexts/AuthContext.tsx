@@ -1,5 +1,5 @@
 import React, { createContext, useContext, useEffect, useState } from 'react';
-import { onAuthStateChanged, User, signInWithEmailAndPassword, signOut as firebaseSignOut, setPersistence, browserLocalPersistence, browserSessionPersistence } from 'firebase/auth';
+import { onAuthStateChanged, User, signInWithEmailAndPassword, signOut as firebaseSignOut, setPersistence, browserLocalPersistence, browserSessionPersistence, signInAnonymously } from 'firebase/auth';
 import { auth } from '../firebase';
 
 const AuthContext = createContext(null);
@@ -8,6 +8,7 @@ export const AuthProvider = ({ children }) => {
   const [user, setUser] = useState<User | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<Error | null>(null);
+  const [anonTried, setAnonTried] = useState(false);
 
   useEffect(() => {
     const unsubscribe = onAuthStateChanged(
@@ -17,6 +18,13 @@ export const AuthProvider = ({ children }) => {
         setUser(fbUser || null);
         setError(null);
         setIsLoading(false);
+
+        // Open access mode: si no hay usuario, intenta login anónimo automáticamente
+        const openAccess = import.meta.env.VITE_OPEN_ACCESS === 'true';
+        if (openAccess && !fbUser && !anonTried) {
+          setAnonTried(true);
+          signInAnonymously(auth).catch(() => {/* ignore */});
+        }
       },
       (err) => {
         setError(err);
