@@ -118,3 +118,51 @@ export const onUserMessageCreated = functions.firestore
       });
     }
   });
+
+export const generateVideoScript = functions.https.onCall(async (data, context) => {
+  // 1. Ensure the user is authenticated
+  if (!context.auth) {
+    throw new functions.https.HttpsError('unauthenticated', 'The function must be called while authenticated.');
+  }
+
+  const { prompt } = data;
+
+  if (!prompt) {
+    throw new functions.https.HttpsError('invalid-argument', 'The function must be called with a "prompt".');
+  }
+
+  try {
+    // 2. Call OpenAI API to generate video script
+    const completion = await openai.chat.completions.create({
+      model: OPENAI_MODEL,
+      messages: [
+        {
+          role: 'system',
+          content: `Eres un experto guionista de videos cortos para redes sociales. Basado en el siguiente prompt, genera un guion de video. El guion debe tener un título, una lista de escenas (cada una con una descripción visual y una narración), y una sugerencia de audio. Responde únicamente con un objeto JSON con el formato: {"title": "título del video", "scenes": [{"visual": "descripción de la escena 1", "voiceover": "narración de la escena 1"}], "audioSuggestion": "sugerencia de música o sonido"}. No incluyas nada más en tu respuesta.`,
+        },
+        {
+          role: 'user',
+          content: prompt,
+        },
+      ],
+      response_format: { type: 'json_object' },
+    });
+
+    const responseContent = completion.choices[0]?.message?.content;
+
+    if (!responseContent) {
+      throw new functions.https.HttpsError('internal', 'Failed to get a valid response from OpenAI.');
+    }
+
+    // 3. Parse the JSON response and return it
+    const parsedContent = JSON.parse(responseContent);
+    return parsedContent;
+
+  } catch (error) {
+    functions.logger.error('Error generating video script:', error);
+    if (error instanceof functions.https.HttpsError) {
+      throw error;
+    }
+    throw new functions.https.HttpsError('internal', 'An unexpected error occurred while generating the video script.');
+  }
+});
