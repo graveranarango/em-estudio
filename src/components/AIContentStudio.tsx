@@ -17,9 +17,9 @@ const Sidebar = ({ onModuleChange }) => (
   </div>
 );
 const Header = () => <div className="h-16 bg-gray-200"></div>;
-const ChatModuleUpdated = () => <div>Chat Module</div>;
 
 // Lazy load modules
+const ChatModuleUpdated = React.lazy(() => import('./modules/ChatModuleUpdated'));
 const PostsCreatorModule = React.lazy(() => import('./posts/PostsCreatorModule'));
 const VideosCreatorModule = React.lazy(() => import('./videos/VideosCreatorModule'));
 const PodcastsCreatorModule = React.lazy(() => import('./podcasts/PodcastsCreatorModule'));
@@ -39,7 +39,11 @@ function LoadingSpinner() {
 const renderModule = (activeModule: string) => {
   switch (activeModule) {
     case 'chat':
-      return <ChatModuleUpdated />;
+      return (
+        <Suspense fallback={<LoadingSpinner />}>
+          <ChatModuleUpdated />
+        </Suspense>
+      );
     case 'posts':
       return (
         <Suspense fallback={<LoadingSpinner />}>
@@ -83,7 +87,11 @@ const renderModule = (activeModule: string) => {
         </Suspense>
       );
     default:
-      return <ChatModuleUpdated />;
+      return (
+        <Suspense fallback={<LoadingSpinner />}>
+          <ChatModuleUpdated />
+        </Suspense>
+      );
   }
 };
 
