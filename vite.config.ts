@@ -60,14 +60,13 @@ export default defineConfig({
     port: 3000,
     open: true,
     hmr: { overlay: false },
-    proxy: process.env.VITE_FIREBASE_EMULATOR === 'true'
-      ? {
-          '/api': {
-            target: 'http://127.0.0.1:5001/em-estudio-865c5/us-central1/apiV1',
-            changeOrigin: true,
-            rewrite: (path) => path.replace(/^\/api/, ''),
-          },
-        }
-      : undefined,
+    proxy: {
+      '/api': {
+        target: (process.env.VITE_FIREBASE_EMULATOR === 'true' ? 'http://127.0.0.1:5001/em-estudio-865c5/us-central1/apiV1' : 'https://us-central1-em-estudio-865c5.cloudfunctions.net/apiV1'),
+        changeOrigin: true,
+        rewrite: (path) => path.replace(/^\\/api/, ''),
+      },
+    },
   },
 });
+
