@@ -1,4 +1,4 @@
-import { db, auth } from '../firebase';
+import { db } from '../firebase';
 import {
   collection,
   addDoc,
@@ -11,13 +11,9 @@ import {
   doc,
   updateDoc,
   deleteDoc,
+  setDoc,
 } from 'firebase/firestore';
-import {
-  getStorage,
-  ref,
-  uploadBytes,
-  getDownloadURL,
-} from 'firebase/storage';
+import { getStorage, ref, uploadBytes, getDownloadURL } from 'firebase/storage';
 
 const storage = getStorage();
 
@@ -49,7 +45,6 @@ export const updateMessageContent = async (
   const messageRef = doc(db, 'users', userId, 'threads', threadId, 'messages', messageId);
   await updateDoc(messageRef, {
     content: newContent,
-    // Optionally, clear the report after applying suggestion
     brandGuardReport: null,
   });
 };
@@ -64,4 +59,83 @@ export const subscribeToThreads = (userId: string, groupId: string, callback: (t
   });
 
   return unsubscribe;
+};
+
+export const subscribeToMessages = (
+  userId: string,
+  threadId: string,
+  callback: (messages: any[]) => void
+) => {
+  const messagesRef = collection(db, 'users', userId, 'threads', threadId, 'messages');
+  const q = query(messagesRef, orderBy('createdAt', 'asc'));
+  const unsubscribe = onSnapshot(q, (snapshot) => {
+    const items = snapshot.docs.map((d) => ({ id: d.id, ...d.data() }));
+    callback(items);
+  });
+  return unsubscribe;
+};
+
+export const ensureDefaultGroupAndThread = async (
+  userId: string
+): Promise<{ groupId: string; threadId: string }> => {
+  const groupsRef = collection(db, 'users', userId, 'groups');
+  const groupsSnap = await getDocs(groupsRef);
+  if (!groupsSnap.empty) {
+    const firstGroup = groupsSnap.docs[0];
+    const threadsRef = collection(db, 'users', userId, 'groups', firstGroup.id, 'threads');
+    const threadsSnap = await getDocs(threadsRef);
+    if (!threadsSnap.empty) {
+      const firstThread = threadsSnap.docs[0];
+      return { groupId: firstGroup.id, threadId: firstThread.id };
+    }
+    const newThread = await addDoc(threadsRef, {
+      title: 'Chat Maestro',
+      createdAt: serverTimestamp(),
+    });
+    await setDoc(doc(db, 'users', userId, 'threads', newThread.id), {
+      createdAt: serverTimestamp(),
+    });
+    await addDoc(collection(db, 'users', userId, 'threads', newThread.id, 'messages'), {
+      role: 'assistant',
+      content: 'Bienvenido a Chat Maestro. ¡Escribe para comenzar!',
+      createdAt: serverTimestamp(),
+    });
+    return { groupId: firstGroup.id, threadId: newThread.id };
+  }
+
+  const newGroup = await addDoc(groupsRef, {
+    name: 'General',
+    createdAt: serverTimestamp(),
+  });
+
+  const threadsRef = collection(db, 'users', userId, 'groups', newGroup.id, 'threads');
+  const newThread = await addDoc(threadsRef, {
+    title: 'Chat Maestro',
+    createdAt: serverTimestamp(),
+  });
+
+  await setDoc(doc(db, 'users', userId, 'threads', newThread.id), {
+    createdAt: serverTimestamp(),
+  });
+
+  await addDoc(collection(db, 'users', userId, 'threads', newThread.id, 'messages'), {
+    role: 'assistant',
+    content: 'Bienvenido a Chat Maestro. ¡Escribe para comenzar!',
+    createdAt: serverTimestamp(),
+  });
+
+  return { groupId: newGroup.id, threadId: newThread.id };
+};
+
+export const addUserMessage = async (
+  userId: string,
+  threadId: string,
+  content: string
+) => {
+  const messagesRef = collection(db, 'users', userId, 'threads', threadId, 'messages');
+  await addDoc(messagesRef, {
+    role: 'user',
+    content,
+    createdAt: serverTimestamp(),
+  });
 };
