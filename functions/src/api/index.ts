@@ -5,6 +5,7 @@ import threadRoutes from './routes/threads.routes';
 import imageRoutes from './routes/image.routes';
 import videoRoutes from './routes/video.routes';
 import podcastRoutes from './routes/podcast.routes';
+import brandkitRoutes from './routes/brandkit.routes';
 
 const app = express();
 app.use(cors({ origin: true }));
@@ -13,5 +14,6 @@ app.use('/threads', threadRoutes);
 app.use('/image', imageRoutes);
 app.use('/video', videoRoutes);
 app.use('/podcast', podcastRoutes);
+app.use('/brandkit', brandkitRoutes);
 
 export const apiV1 = functions.https.onRequest(app);

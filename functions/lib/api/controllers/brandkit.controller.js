@@ -1,0 +1,49 @@
+"use strict";
+Object.defineProperty(exports, "__esModule", { value: true });
+exports.updateBrandKit = exports.getBrandKit = void 0;
+const admin = require("firebase-admin");
+const functions = require("firebase-functions");
+const db = admin.firestore();
+const getBrandKitRef = (userId) => {
+    return db.collection('users').doc(userId).collection('brandkit').doc('config');
+};
+const getBrandKit = async (req, res) => {
+    const userId = res.locals.uid;
+    if (!userId) {
+        return res.status(401).send({ error: 'User not authenticated' });
+    }
+    try {
+        const docRef = getBrandKitRef(userId);
+        const doc = await docRef.get();
+        if (!doc.exists) {
+            return res.status(200).send({ data: {} }); // Return empty object if not configured
+        }
+        return res.status(200).send({ data: doc.data() });
+    }
+    catch (error) {
+        functions.logger.error('Error getting BrandKit:', error);
+        return res.status(500).send({ error: 'Failed to get BrandKit' });
+    }
+};
+exports.getBrandKit = getBrandKit;
+const updateBrandKit = async (req, res) => {
+    const userId = res.locals.uid;
+    if (!userId) {
+        return res.status(401).send({ error: 'User not authenticated' });
+    }
+    const brandKitData = req.body;
+    if (!brandKitData) {
+        return res.status(400).send({ error: 'BrandKit data is required' });
+    }
+    try {
+        const docRef = getBrandKitRef(userId);
+        await docRef.set(brandKitData, { merge: true }); // Use merge to avoid overwriting all fields
+        return res.status(200).send({ success: true, data: brandKitData });
+    }
+    catch (error) {
+        functions.logger.error('Error updating BrandKit:', error);
+        return res.status(500).send({ error: 'Failed to update BrandKit' });
+    }
+};
+exports.updateBrandKit = updateBrandKit;
+//# sourceMappingURL=brandkit.controller.js.map

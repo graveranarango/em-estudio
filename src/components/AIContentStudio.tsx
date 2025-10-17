@@ -10,6 +10,7 @@ const Sidebar = ({ onModuleChange }) => (
       <Button onClick={() => onModuleChange('videos')}>Videos</Button>
       <Button onClick={() => onModuleChange('podcasts')}>Podcasts</Button>
       <Button onClick={() => onModuleChange('calendar')}>Calendario</Button>
+      <Button onClick={() => onModuleChange('brandkit')}>BrandKit</Button>
     </div>
   </div>
 );
@@ -21,6 +22,7 @@ const PostsCreatorModule = React.lazy(() => import('./posts/PostsCreatorModule')
 const VideosCreatorModule = React.lazy(() => import('./videos/VideosCreatorModule'));
 const PodcastsCreatorModule = React.lazy(() => import('./podcasts/PodcastsCreatorModule'));
 const CalendarModule = React.lazy(() => import('./calendar/CalendarModule'));
+const BrandKitModule = React.lazy(() => import('./brandkit/BrandKitModule'));
 
 function LoadingSpinner() {
   return (
@@ -56,6 +58,12 @@ const renderModule = (activeModule: string) => {
       return (
         <Suspense fallback={<LoadingSpinner />}>
           <CalendarModule />
+        </Suspense>
+      );
+    case 'brandkit':
+      return (
+        <Suspense fallback={<LoadingSpinner />}>
+          <BrandKitModule />
         </Suspense>
       );
     default:
