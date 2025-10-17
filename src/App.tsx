@@ -1,52 +1,15 @@
-import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
-import { AuthProvider, useAuth } from './contexts/AuthContext';
+import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
+import { AuthProvider } from './contexts/AuthContext';
 import { AIContentStudio } from './components/AIContentStudio';
-import { LoginPage } from './views/LoginPage';
 import { DebugMessagesPage } from './views/DebugMessagesPage';
 
-function ProtectedRoute({ children }) {
-  const { user, isLoading } = useAuth();
-
-  if (isLoading) {
-    return (
-      <div className="h-screen flex items-center justify-center">
-        <div className="w-8 h-8 mx-auto border-4 border-pink-500 border-t-transparent rounded-full animate-spin"></div>
-        <p className="ml-4 text-muted-foreground">Initializing...</p>
-      </div>
-    );
-  }
-
-  if (!user) {
-    return <Navigate to="/login" replace />;
-  }
-
-  return children;
-}
-
 export default function App() {
-  const OPEN_ACCESS = import.meta.env.VITE_OPEN_ACCESS === 'true';
   return (
     <AuthProvider>
       <Router>
         <Routes>
-          {!OPEN_ACCESS && <Route path="/login" element={<LoginPage />} />}
-          <Route
-            path="/debug/messages"
-            element={OPEN_ACCESS ? <DebugMessagesPage /> : (
-              <ProtectedRoute>
-                <DebugMessagesPage />
-              </ProtectedRoute>
-            )}
-          />
-          <Route
-            path="/*"
-            element={OPEN_ACCESS ? <AIContentStudio /> : (
-              <ProtectedRoute>
-                <AIContentStudio />
-              </ProtectedRoute>
-            )}
-          />
-          {OPEN_ACCESS && <Route path="/login" element={<Navigate to="/" replace />} />}
+          <Route path="/debug/messages" element={<DebugMessagesPage />} />
+          <Route path="/*" element={<AIContentStudio />} />
         </Routes>
       </Router>
     </AuthProvider>

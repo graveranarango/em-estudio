@@ -19,9 +19,8 @@ export const AuthProvider = ({ children }) => {
         setError(null);
         setIsLoading(false);
 
-        // Open access mode: si no hay usuario, intenta login anónimo automáticamente
-        const openAccess = import.meta.env.VITE_OPEN_ACCESS === 'true';
-        if (openAccess && !fbUser && !anonTried) {
+        // Acceso abierto por defecto: si no hay usuario, intenta login anónimo automáticamente
+        if (!fbUser && !anonTried) {
           setAnonTried(true);
           signInAnonymously(auth).catch(() => {/* ignore */});
         }
