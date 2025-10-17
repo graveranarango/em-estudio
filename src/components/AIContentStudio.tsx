@@ -4,15 +4,19 @@ import { Button } from './ui/button';
 const Sidebar = ({ onModuleChange }) => (
   <div className="w-64 bg-gray-100 p-4">
     <h2 className="font-bold mb-4">Módulos</h2>
-    <Button onClick={() => onModuleChange('chat')}>Chat</Button>
-    <Button onClick={() => onModuleChange('posts')}>Posts</Button>
+    <div className="space-y-2">
+      <Button onClick={() => onModuleChange('chat')}>Chat</Button>
+      <Button onClick={() => onModuleChange('posts')}>Posts</Button>
+      <Button onClick={() => onModuleChange('videos')}>Videos</Button>
+    </div>
   </div>
 );
 const Header = () => <div className="h-16 bg-gray-200"></div>;
 const ChatModuleUpdated = () => <div>Chat Module</div>;
 
-// Lazy load the posts module
+// Lazy load modules
 const PostsCreatorModule = React.lazy(() => import('./posts/PostsCreatorModule'));
+const VideosCreatorModule = React.lazy(() => import('./videos/VideosCreatorModule'));
 
 function LoadingSpinner() {
   return (
@@ -30,6 +34,12 @@ const renderModule = (activeModule: string) => {
       return (
         <Suspense fallback={<LoadingSpinner />}>
           <PostsCreatorModule />
+        </Suspense>
+      );
+    case 'videos':
+      return (
+        <Suspense fallback={<LoadingSpinner />}>
+          <VideosCreatorModule />
         </Suspense>
       );
     default:
