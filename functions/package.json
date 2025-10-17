@@ -25,6 +25,7 @@
   "devDependencies": {
     "@types/node": "18",
     "firebase-functions-test": "^3.1.0",
+    "firebase-tools": "^14.20.0",
     "typescript": "^5.0.0"
   },
   "private": true

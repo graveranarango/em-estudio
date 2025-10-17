@@ -10,6 +10,7 @@ import competitionRoutes from './routes/competition.routes';
 import googleRoutes from './routes/google.routes';
 import calendarRoutes from './routes/calendar.routes';
 import dashboardRoutes from './routes/dashboard.routes';
+import utilsRoutes from './routes/utils.routes';
 
 const app = express();
 app.use(cors({ origin: true }));
@@ -23,5 +24,6 @@ app.use('/competition', competitionRoutes);
 app.use('/google', googleRoutes);
 app.use('/calendar', calendarRoutes);
 app.use('/dashboard', dashboardRoutes);
+app.use('/utils', utilsRoutes);
 
 export const apiV1 = functions.https.onRequest(app);
