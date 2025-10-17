@@ -38,6 +38,8 @@ export interface StreamingState {
   }>;
 }
 
+export type Persona = 'default' | 'copywriter' | 'social_media_manager' | 'brand_strategist';
+
 // Main chat store state
 export interface ChatState {
   // Current thread state
@@ -86,6 +88,7 @@ export interface ChatState {
   setIsMobileView: (isMobile: boolean) => void;
   
   // Message actions
+    setPersona: (persona: Persona) => void;
   pushUserMessage: (content: string, attachments?: any[]) => void;
   upsertAssistantMessage: (content: string, messageId?: string) => void;
   
@@ -189,9 +192,14 @@ export const useChatStore = create<ChatState>()(
       }),
 
     // Mobile actions
-    setMobileKeyboardOpen: (open: boolean) => 
+    setMobileKeyboardOpen: (open: boolean) =>
       set((state) => {
         state.mobileKeyboardOpen = open;
+      }),
+
+    setPersona: (persona: Persona) =>
+      set((state) => {
+        state.settings.persona = persona;
       }),
 
     setShowVirtualKeyboard: (show: boolean) => 
@@ -207,12 +215,13 @@ export const useChatStore = create<ChatState>()(
     // Message actions
     pushUserMessage: (content: string, attachments?: any[]) =>
       set((state) => {
-        const userMessage: Msg = {
+        const userMessage: Msg & { persona?: Persona } = {
           id: generateId(),
           role: 'user',
           parts: [{ type: 'text', value: content }],
           createdAt: new Date().toISOString(),
-          meta: { attachments }
+          meta: { attachments },
+          persona: state.settings.persona as Persona,
         };
         state.messages.push(userMessage);
         state.composerText = ''; // Clear composer after sending

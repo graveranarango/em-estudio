@@ -1,7 +1,7 @@
 "use strict";
 var _a, _b, _c;
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.generateVideoScript = exports.onUserMessageCreated = void 0;
+exports.onUserMessageCreated = void 0;
 const functions = require("firebase-functions");
 const admin = require("firebase-admin");
 const openai_1 = require("openai");
@@ -50,6 +50,12 @@ const runBrandGuard = (text) => {
     };
     return report;
 };
+const PERSONAS = {
+    default: 'You are a helpful AI assistant specialized in content creation and marketing.',
+    copywriter: 'You are an expert copywriter. Your responses should be persuasive, concise, and focused on conversion. Use clear calls to action.',
+    social_media_manager: 'You are a social media strategist. Analyze trends, suggest engaging formats, and optimize for different platforms.',
+    brand_strategist: 'You are a brand consultant. Help the user define their tone of voice, target audience, and value proposition.',
+};
 exports.onUserMessageCreated = functions.firestore
     .document('users/{userId}/threads/{threadId}/messages/{messageId}')
     .onCreate(async (snap, context) => {
@@ -78,10 +84,12 @@ exports.onUserMessageCreated = functions.firestore
             .map(doc => doc.data())
             .reverse()
             .map(msg => ({ role: msg.role, content: msg.content }));
+        const persona = newMessage.persona || 'default';
+        const systemPrompt = PERSONAS[persona] || PERSONAS.default;
         const completion = await openai.chat.completions.create({
             model: OPENAI_MODEL,
             messages: [
-                { role: 'system', content: 'You are a helpful AI assistant.' },
+                { role: 'system', content: systemPrompt },
                 ...contextMessages,
             ],
         });
@@ -102,48 +110,6 @@ exports.onUserMessageCreated = functions.firestore
             content: 'Ha ocurrido un error al procesar tu solicitud. Por favor, inténtalo de nuevo.',
             createdAt: admin.firestore.FieldValue.serverTimestamp(),
         });
-    }
-});
-exports.generateVideoScript = functions.https.onCall(async (data, context) => {
-    var _a, _b;
-    // 1. Ensure the user is authenticated
-    if (!context.auth) {
-        throw new functions.https.HttpsError('unauthenticated', 'The function must be called while authenticated.');
-    }
-    const { prompt } = data;
-    if (!prompt) {
-        throw new functions.https.HttpsError('invalid-argument', 'The function must be called with a "prompt".');
-    }
-    try {
-        // 2. Call OpenAI API to generate video script
-        const completion = await openai.chat.completions.create({
-            model: OPENAI_MODEL,
-            messages: [
-                {
-                    role: 'system',
-                    content: `Eres un experto guionista de videos cortos para redes sociales. Basado en el siguiente prompt, genera un guion de video. El guion debe tener un título, una lista de escenas (cada una con una descripción visual y una narración), y una sugerencia de audio. Responde únicamente con un objeto JSON con el formato: {"title": "título del video", "scenes": [{"visual": "descripción de la escena 1", "voiceover": "narración de la escena 1"}], "audioSuggestion": "sugerencia de música o sonido"}. No incluyas nada más en tu respuesta.`,
-                },
-                {
-                    role: 'user',
-                    content: prompt,
-                },
-            ],
-            response_format: { type: 'json_object' },
-        });
-        const responseContent = (_b = (_a = completion.choices[0]) === null || _a === void 0 ? void 0 : _a.message) === null || _b === void 0 ? void 0 : _b.content;
-        if (!responseContent) {
-            throw new functions.https.HttpsError('internal', 'Failed to get a valid response from OpenAI.');
-        }
-        // 3. Parse the JSON response and return it
-        const parsedContent = JSON.parse(responseContent);
-        return parsedContent;
-    }
-    catch (error) {
-        functions.logger.error('Error generating video script:', error);
-        if (error instanceof functions.https.HttpsError) {
-            throw error;
-        }
-        throw new functions.https.HttpsError('internal', 'An unexpected error occurred while generating the video script.');
     }
 });
 //# sourceMappingURL=index.js.map
