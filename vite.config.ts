@@ -57,7 +57,7 @@
       target: 'esnext',
       outDir: 'build',
     },
-    server: {
+    `server: {
       port: 3000,
       open: true,
       proxy: process.env.VITE_FIREBASE_EMULATOR === 'true'
@@ -65,9 +65,11 @@
             '/api': {
               target: 'http://127.0.0.1:5001/em-estudio-865c5/us-central1/apiV1',
               changeOrigin: true,
-              rewrite: (path) => path.replace(/^\/api/, ''),
-            },
+              rewrite: (path) => path.replace(/^\/api/, ''),,
+      hmr: { overlay: false }
+    },
           }
         : undefined,
     },
   });
+

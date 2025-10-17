@@ -7,20 +7,48 @@
     <title>Content Studio Wireframe</title>
     <script>
       // Suppress duplicate custom element definition noise during dev/HMR
-      // and proactively avoid re-defining the specific element.
+      // and proactively avoid re-defining the specific element, even if a CE polyfill
+      // replaces window.customElements after this script runs.
       (function () {
+        function patchCE(ce) {
+          try {
+            if (!ce || ce.__patched_mce_fix) return ce;
+            var origDefine = ce.define && ce.define.bind(ce);
+            if (origDefine) {
+              ce.define = function (name, ctor, opts) {
+                if (name === 'mce-autosize-textarea' && this.get && this.get(name)) {
+                  return; // ignore duplicate define
+                }
+                try { return origDefine(name, ctor, opts); }
+                catch (e) {
+                  var msg = String(e && e.message || '');
+                  if (msg.indexOf('mce-autosize-textarea') !== -1 && msg.indexOf('already been defined') !== -1) {
+                    return; // swallow duplicate define error
+                  }
+                  throw e;
+                }
+              };
+            }
+            ce.__patched_mce_fix = true;
+          } catch (_) {}
+          return ce;
+        }
+
         try {
-          var origDefine = window.customElements && window.customElements.define;
-          if (origDefine) {
-            var boundDefine = origDefine.bind(window.customElements);
-            window.customElements.define = function (name, ctor, opts) {
-              if (name === 'mce-autosize-textarea' && window.customElements.get(name)) {
-                // Avoid throwing on re-definition during HMR
-                return;
-              }
-              return boundDefine(name, ctor, opts);
-            };
-          }
+          // Patch current CE implementation
+          if (window.customElements) patchCE(window.customElements);
+
+          // Ensure future replacements are also patched (polyfills sometimes reassign it)
+          var _ceRef = window.customElements;
+          Object.defineProperty(window, 'customElements', {
+            configurable: true,
+            get: function () { return _ceRef; },
+            set: function (v) { _ceRef = patchCE(v); }
+          });
+        } catch (_) {}
+
+        try {
+          // Fallback: suppress bubbling error events with the specific message
         } catch (e) {
           // ignore
         }
