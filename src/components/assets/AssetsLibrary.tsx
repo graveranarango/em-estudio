@@ -1,4 +1,4 @@
-import { useState, useMemo, useEffect, memo } from "react";
+import { useState, useMemo, memo } from "react";
 import { Card } from "../ui/card";
 import { Button } from "../ui/button";
 import { Badge } from "../ui/badge";
@@ -16,32 +16,29 @@ import { AssetFilters } from "./AssetFilters";
 import { AssetDetailPanel } from "./AssetDetailPanel";
 import { Asset, AssetFilters as Filters } from "../../types/assets";
 import { useBrandKit } from "../../contexts/BrandKitContext";
-import { assetsService } from "../../utils/assets-service";
+import { useUserAssets } from "../../hooks/useUserAssets";
 
 function AssetsLibrary() {
   const { brandKit } = useBrandKit();
+  const { assets, isLoading, error, uploadProgress, uploadAsset, deleteAsset } = useUserAssets();
   const [selectedAsset, setSelectedAsset] = useState<Asset | null>(null);
   const [isDetailPanelOpen, setIsDetailPanelOpen] = useState(false);
   const [viewMode, setViewMode] = useState<'grid' | 'list'>('grid');
   const [filters, setFilters] = useState<Filters>({});
-  const [allAssets, setAllAssets] = useState<Asset[]>([]);
-  const [loading, setLoading] = useState(true);
 
-  // Cargar assets al inicializar
-  useEffect(() => {
-    const loadAssets = async () => {
-      try {
-        const assets = await assetsService.getAllAssets();
-        setAllAssets(assets);
-      } catch (error) {
-        console.error('Error loading assets:', error);
-      } finally {
-        setLoading(false);
-      }
-    };
-
-    loadAssets();
-  }, []);
+  const allAssets: Asset[] = useMemo(() => assets.map(userAsset => ({
+    id: userAsset.fullPath,
+    title: userAsset.name,
+    type: userAsset.name.endsWith('.mp4') || userAsset.name.endsWith('.mov') ? 'video' : 'image', // Simple type inference
+    status: 'published',
+    url: userAsset.url,
+    thumbnail: userAsset.url,
+    platform: 'general',
+    tags: [],
+    brandCompliance: { isCompliant: true, score: 100, issues: [] },
+    createdAt: new Date(),
+    updatedAt: new Date(),
+  })), [assets]);
 
   // Aplicar filtros
   const filteredAssets = useMemo(() => {

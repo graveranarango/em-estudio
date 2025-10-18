@@ -30,13 +30,14 @@ import {
 } from 'lucide-react';
 
 import { useChat } from '../../hooks/useChat';
-import { useChatStore } from '../../state/chatStore';
+import { useChatStore, Persona } from '../../state/chatStore';
 import { useBrandGuard } from '../../hooks/useBrandGuard';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '../ui/dialog';
 import { RadioGroup, RadioGroupItem } from '../ui/radio-group';
 import { Input } from '../ui/input';
 import { Label } from '../ui/label';
 import { Button } from '../ui/button';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '../ui/select';
 import { Textarea } from '../ui/textarea';
 import { Badge } from '../ui/badge';
 import { Progress } from '../ui/progress';
@@ -516,15 +517,20 @@ export function ChatModuleUpdated() {
             {/* Persona selector */}
             <div className="flex items-center gap-1">
               <Sparkles className="w-3 h-3 text-muted-foreground" />
-              <select 
+              <Select
                 value={chat.settings.persona}
-                onChange={(e) => chat.setSettings({ persona: e.target.value as any })}
-                className="text-xs bg-transparent border-none outline-none"
+                onValueChange={(value: Persona) => chat.setPersona(value)}
               >
-                <option value="mentor">Mentor creativo</option>
-                <option value="planner">Planificador estratégico</option>
-                <option value="engineer">Ingeniero técnico</option>
-              </select>
+                <SelectTrigger className="text-xs bg-transparent border-none outline-none h-auto p-0 focus:ring-0">
+                  <SelectValue placeholder="Seleccionar persona" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="default">Asistente General</SelectItem>
+                  <SelectItem value="copywriter">Copywriter</SelectItem>
+                  <SelectItem value="social_media_manager">Social Media Manager</SelectItem>
+                  <SelectItem value="brand_strategist">Estratega de Marca</SelectItem>
+                </SelectContent>
+              </Select>
             </div>
 
             {/* Temperature */}

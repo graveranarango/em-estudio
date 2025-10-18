@@ -8,7 +8,7 @@ import PodcastsCreatorModule from "./podcasts/PodcastsCreatorModule";
 import CalendarModule from "./modules/CalendarModule";
 import { ChatModuleUpdated } from "./modules/ChatModuleUpdated";
 import ChatMobile from "../src/views/chat/mobile/ChatMobile";
-import AssetsLibrary from "./assets/AssetsLibrary";
+import AssetsLibraryDynamic from "./assets/AssetsLibraryDynamic";
 import AnalyticsModule from "./analytics/AnalyticsModule";
 import AutomationModule from "./automation/AutomationModule";
 import CompetitionModule from "./competition/CompetitionModule";
@@ -118,7 +118,7 @@ function Canvas({ activeModule }: CanvasProps) {
       case 'calendar':
         return <CalendarModule />;
       case 'library':
-        return <AssetsLibrary />;
+        return <AssetsLibraryDynamic />;
       default:
         return null;
     }

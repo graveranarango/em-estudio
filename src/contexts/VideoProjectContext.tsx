@@ -23,7 +23,7 @@ interface VideoProjectContextType {
   // Persistencia
   saveProject: () => Promise<void>;
   loadProject: (projectId: string) => Promise<void>;
-  createNewProject: (type: VideoType, initialData?: Partial<VideoProject>) => void;
+  createNewProject: (type: VideoType) => void;
 }
 
 export type VideoProjectStep = 'briefing' | 'configuration' | 'storyboard' | 'generation' | 'editing' | 'copywriting' | 'publishing';
@@ -139,10 +139,10 @@ export function VideoProjectProvider({ children }: VideoProjectProviderProps) {
     }
   };
 
-  const createNewProject = (type: VideoType, initialData: Partial<VideoProject> = {}) => {
+  const createNewProject = (type: VideoType) => {
     const newProject: VideoProject = {
       id: `video_project_${Date.now()}`,
-      title: `Nuevo ${type === 'short' ? 'Short/Reel' : 'Video Largo'}`,
+      title: `Nuevo ${type === 'short' ? 'Short/Reel' : type === 'video_long' ? 'Video Largo' : type}`,
       type,
       status: 'briefing',
       briefing: {
@@ -175,8 +175,7 @@ export function VideoProjectProvider({ children }: VideoProjectProviderProps) {
       },
       createdAt: new Date(),
       updatedAt: new Date(),
-      brandKitCompliant: true,
-      ...initialData, // Fusionar datos iniciales
+      brandKitCompliant: true
     };
     
     setCurrentProject(newProject);

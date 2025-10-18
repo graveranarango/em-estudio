@@ -5,12 +5,9 @@ import { Badge } from "../ui/badge";
 import { BrandKitAlert } from "../common/BrandKitAlert";
 import { VideoCreationWorkflow } from "./VideoCreationWorkflow";
 import { ShortCreationWorkflow } from "./ShortCreationWorkflow";
-import { getFunctions, httpsCallable } from "firebase/functions";
 import { useVideoProject } from "../../contexts/VideoProjectContext";
 import { useBrandKit } from "../../contexts/BrandKitContext";
-import { VideoType, VideoScene } from "../../types/videos";
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogFooter } from "../ui/dialog";
-import { Textarea } from "../ui/textarea";
+import { VideoType } from "../../types/videos";
 import { 
   Video, 
   Play, 
@@ -55,86 +52,14 @@ function VideosCreatorContent() {
   const { currentProject, createNewProject } = useVideoProject();
   const [showWorkflow, setShowWorkflow] = useState(!!currentProject);
   const [isLoading, setIsLoading] = useState(false);
-  const [showGeneratorDialog, setShowGeneratorDialog] = useState(false);
-  const [selectedVideoType, setSelectedVideoType] = useState<VideoType | null>(null);
-  const [scriptPrompt, setScriptPrompt] = useState("");
-  const [generationError, setGenerationError] = useState<string | null>(null);
 
   const handleCreateProject = (type: VideoType) => {
-    setSelectedVideoType(type);
-    setShowGeneratorDialog(true);
-  };
-
-  const handleStartFromScratch = () => {
-    if (!selectedVideoType) return;
     try {
       setIsLoading(true);
-      createNewProject(selectedVideoType);
+      createNewProject(type);
       setShowWorkflow(true);
     } catch (error) {
       console.error('Error creating video project:', error);
-    } finally {
-      setIsLoading(false);
-      setShowGeneratorDialog(false);
-    }
-  };
-
-  const handleGenerateScript = async () => {
-    if (!scriptPrompt || !selectedVideoType) return;
-
-    setIsLoading(true);
-    setGenerationError(null);
-    setShowGeneratorDialog(false);
-
-    try {
-      const functions = getFunctions();
-      const generateVideoScript = httpsCallable(functions, 'generateVideoScript');
-      const result = await generateVideoScript({ prompt: scriptPrompt });
-
-      const script = result.data as { title: string; scenes: { visual: string; voiceover: string }[], audioSuggestion: string };
-
-      const newScenes: VideoScene[] = script.scenes.map((scene, index) => ({
-        id: `scene_${Date.now()}_${index}`,
-        projectId: `video_project_${Date.now()}`, // temp id, context will assign real one
-        order: index,
-        duration: 5,
-        title: `Escena ${index + 1}`,
-        description: scene.visual,
-        thumbnail: '',
-        layers: [{
-          id: `layer_${Date.now()}_${index}`, type: 'text', name: 'Voz en off', content: scene.voiceover,
-          startTime: 0, duration: 5, position: { x: 10, y: 90, width: 80, height: 10 },
-          style: {}, visible: true, locked: false, zIndex: 1,
-        }],
-        transitions: [],
-        brandElements: { colors: [], fonts: [], logos: [], animations: [], guidelines: [] },
-        metadata: { aiGenerated: true, prompt: scene.visual, tags: [], complexity: 'medium' },
-        createdAt: new Date(),
-      }));
-
-      // Call the refactored createNewProject with initial data
-      createNewProject(selectedVideoType, {
-        title: script.title,
-        scenes: newScenes,
-        briefing: {
-          description: scriptPrompt,
-          videoType: selectedVideoType,
-          duration: { target: 30, min: 15, max: 60, label: '30s' },
-          platform: selectedVideoType === 'short' ? 'multiple' : 'youtube',
-          style: selectedVideoType === 'short' ? 'trendy' : 'dynamic',
-          chatHistory: [],
-          script: script.scenes.map(s => s.voiceover).join('\n\n'),
-          objectives: ['engagement']
-        },
-      });
-
-      setShowWorkflow(true);
-
-    } catch (error) {
-      console.error("Error generating video script:", error);
-      setGenerationError("No se pudo generar el guion. Por favor, inténtalo de nuevo.");
-      // Re-open the dialog on error to allow user to try again
-      setShowGeneratorDialog(true);
     } finally {
       setIsLoading(false);
     }
@@ -188,39 +113,6 @@ function VideosCreatorContent() {
 
         {/* BrandKit Status */}
         <BrandKitAlert />
-
-        {generationError && (
-          <div className="my-4 p-3 bg-red-100 border border-red-300 text-red-800 rounded-lg text-center">
-            {generationError}
-          </div>
-        )}
-
-        {/* AI Script Generator Dialog */}
-        <Dialog open={showGeneratorDialog} onOpenChange={setShowGeneratorDialog}>
-          <DialogContent className="sm:max-w-[425px]">
-            <DialogHeader>
-              <DialogTitle>Generar Guion con IA</DialogTitle>
-              <DialogDescription>
-                Describe tu idea y la IA creará un guion base para tu video. O puedes empezar desde cero.
-              </DialogDescription>
-            </DialogHeader>
-            <div className="grid gap-4 py-4">
-              <Textarea
-                placeholder="Ej: Un video de 30 segundos sobre los beneficios del café por la mañana, mostrando a una persona energizada."
-                value={scriptPrompt}
-                onChange={(e) => setScriptPrompt(e.target.value)}
-                rows={4}
-              />
-            </div>
-            <DialogFooter>
-              <Button variant="outline" onClick={handleStartFromScratch}>Comenzar desde Cero</Button>
-              <Button onClick={handleGenerateScript} disabled={isLoading}>
-                {isLoading ? 'Generando...' : 'Generar Guion'}
-                <Sparkles className="w-4 h-4 ml-2" />
-              </Button>
-            </DialogFooter>
-          </DialogContent>
-        </Dialog>
 
         {/* Video Type Selection */}
         <div className="space-y-6">
