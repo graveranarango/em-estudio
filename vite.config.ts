@@ -62,9 +62,11 @@ export default defineConfig({
     hmr: { overlay: false },
     proxy: {
       '/api': {
-        target: (process.env.VITE_FIREBASE_EMULATOR === 'true' ? 'http://127.0.0.1:5001/em-estudio-865c5/us-central1/apiV1' : 'https://us-central1-em-estudio-865c5.cloudfunctions.net/apiV1'),
+        target: process.env.VITE_FIREBASE_EMULATOR === 'true'
+          ? 'http://127.0.0.1:5001/em-estudio-865c5/us-central1/apiV1'
+          : 'https://us-central1-em-estudio-865c5.cloudfunctions.net/apiV1',
         changeOrigin: true,
-        rewrite: (path) => path.replace(/^\\/api/, ''),
+        rewrite: (path) => path.replace(/^\/api/, ''),
       },
     },
   },

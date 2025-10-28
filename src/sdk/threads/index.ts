@@ -93,24 +93,24 @@ class ThreadsSDK {
     return response.json();
   }
 
-  async renameBranch(branchId: string, name: string): Promise<void> {
+  async renameBranch(threadId: string, branchId: string, name: string): Promise<void> {
     const headers = await this.getAuthHeaders();
     const response = await fetch(`${API_BASE}/renameBranch`, {
       method: 'POST',
       headers,
-      body: JSON.stringify({ branchId, name }),
+      body: JSON.stringify({ threadId, branchId, name }),
     });
     if (!response.ok) {
       throw new Error('Failed to rename branch');
     }
   }
 
-  async deleteBranch(branchId: string): Promise<void> {
+  async deleteBranch(threadId: string, branchId: string): Promise<void> {
     const headers = await this.getAuthHeaders();
     const response = await fetch(`${API_BASE}/deleteBranch`, {
       method: 'POST',
       headers,
-      body: JSON.stringify({ branchId }),
+      body: JSON.stringify({ threadId, branchId }),
     });
     if (!response.ok) {
       throw new Error('Failed to delete branch');

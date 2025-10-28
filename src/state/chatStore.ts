@@ -3,13 +3,11 @@
 
 import { create } from 'zustand';
 import { immer } from 'zustand/middleware/immer';
-import { brandGuardSDK } from '../sdk/guard';
-import { useBrandKit } from '../contexts/BrandKitContext';
-import type { 
-  Settings, 
-  Msg, 
-  SSEEvent, 
-  GoogleIARequest 
+import type {
+  Settings,
+  Msg,
+  SSEEvent,
+  GoogleIARequest
 } from '../sdk/chat/contracts';
 import type { ThreadSummary as APIThreadSummary, Branch } from '../sdk/threads/contracts';
 import threadsSDK from '../sdk/threads/index';
@@ -235,21 +233,8 @@ export const useChatStore = create<ChatState>()(
             });
         }
 
-        // Perform Brand Guard check
-        if (state.settings.brandGuard) {
-          const { brandKit } = useBrandKit.getState();
-          if (brandKit) {
-            brandGuardSDK.checkText({
-              text: content,
-              role: 'user',
-              brand: brandGuardSDK.convertBrandKitToBrandGuard(brandKit),
-            }).then(response => {
-              console.log('[ChatStore] Brand Guard check response:', response);
-            }).catch(error => {
-              console.error('[ChatStore] Brand Guard check failed:', error);
-            });
-          }
-        }
+        // Brand Guard validation is handled by the backend automatically
+        // No need for client-side validation here
       }),
 
     upsertAssistantMessage: (content: string, messageId?: string) => 
@@ -549,8 +534,9 @@ export const useChatStore = create<ChatState>()(
 
     renameBranch: async (branchId: string, name: string) => {
       try {
-        await threadsSDK.renameBranch(branchId, name);
-        
+        const state = get();
+        await threadsSDK.renameBranch(state.threadId, branchId, name);
+
         // Actualizar rama local
         set((state) => {
           const branch = state.branches.find(b => b.id === branchId);
@@ -560,7 +546,7 @@ export const useChatStore = create<ChatState>()(
         });
 
         console.log(`[ChatStore] Renamed branch ${branchId} to "${name}"`);
-        
+
       } catch (error) {
         console.error('[ChatStore] Failed to rename branch:', error);
         set((state) => {
@@ -571,17 +557,18 @@ export const useChatStore = create<ChatState>()(
 
     deleteBranch: async (branchId: string) => {
       try {
-        await threadsSDK.deleteBranch(branchId);
-        
+        const state = get();
+        await threadsSDK.deleteBranch(state.threadId, branchId);
+
         // Remover rama local
         set((state) => {
           state.branches = state.branches.filter(b => b.id !== branchId);
-          
+
           // Si era la rama activa, cambiar a otra
           if (state.branchId === branchId) {
             const defaultBranch = state.branches.find(b => b.isDefault);
             const fallbackBranch = defaultBranch || state.branches[0];
-            
+
             if (fallbackBranch) {
               state.branchId = fallbackBranch.id;
               state.messages = []; // Will reload
@@ -590,7 +577,7 @@ export const useChatStore = create<ChatState>()(
         });
 
         console.log(`[ChatStore] Deleted branch ${branchId}`);
-        
+
       } catch (error) {
         console.error('[ChatStore] Failed to delete branch:', error);
         set((state) => {

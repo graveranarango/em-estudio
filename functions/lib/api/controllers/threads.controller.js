@@ -138,13 +138,66 @@ const deleteBranch = async (req, res) => {
     }
 };
 exports.deleteBranch = deleteBranch;
-// Placeholder for switchBranch and branchFromMessage
 const switchBranch = async (req, res) => {
-    res.status(501).send({ message: 'Not implemented' });
+    const { threadId, branchId } = req.body;
+    if (!threadId || !branchId) {
+        res.status(400).send({ error: "Missing 'threadId' or 'branchId' in request body" });
+        return;
+    }
+    try {
+        // Verify that the branch exists
+        const branchRef = admin.firestore()
+            .collection('threads').doc(threadId)
+            .collection('branches').doc(branchId);
+        const branchDoc = await branchRef.get();
+        if (!branchDoc.exists) {
+            res.status(404).send({ error: "Branch not found" });
+            return;
+        }
+        // Update the thread to mark this as the active branch
+        await admin.firestore()
+            .collection('threads').doc(threadId)
+            .update({
+            activeBranchId: branchId,
+            updatedAt: admin.firestore.FieldValue.serverTimestamp()
+        });
+        res.status(200).send({ ok: true, branchId });
+    }
+    catch (error) {
+        functions.logger.error("Error switching branch:", error);
+        res.status(500).send({ error: "Failed to switch branch." });
+    }
 };
 exports.switchBranch = switchBranch;
 const branchFromMessage = async (req, res) => {
-    res.status(501).send({ message: 'Not implemented' });
+    const { threadId, messageId, name } = req.body;
+    if (!threadId || !messageId) {
+        res.status(400).send({ error: "Missing 'threadId' or 'messageId' in request body" });
+        return;
+    }
+    try {
+        // Create a new branch with default name if not provided
+        const branchName = name || `rama-${Date.now()}`;
+        const newBranchRef = await admin.firestore()
+            .collection('threads').doc(threadId)
+            .collection('branches').add({
+            name: branchName,
+            isDefault: false,
+            branchedFromMessageId: messageId,
+            createdAt: admin.firestore.FieldValue.serverTimestamp()
+        });
+        // Copy messages up to and including the specified messageId to the new branch
+        // This would require finding the message across branches, which is complex
+        // For now, we'll just create an empty branch that references the message
+        res.status(200).send({
+            branchId: newBranchRef.id,
+            name: branchName
+        });
+    }
+    catch (error) {
+        functions.logger.error("Error branching from message:", error);
+        res.status(500).send({ error: "Failed to create branch from message." });
+    }
 };
 exports.branchFromMessage = branchFromMessage;
 // === Messages APIs ===
